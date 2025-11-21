@@ -78,16 +78,61 @@ Events are categorized by type (0-26). Each type adds 0+ suffix fields. For a da
   3. Load: `COPY` for batches; use Dataflow for real-time (e.g., Pub/Sub → Beam → AlloyDB).
   4. Schema DDL Snippet:
      ```sql
-     CREATE TABLE perforce.logs (
-         event_type TEXT NOT NULL,
-         timestamp TIMESTAMP NOT NULL,
-         user TEXT,
-         func TEXT,
-         -- ... other common fields
-         specific_data JSONB,  -- For event vars
-         ingested_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-     );
-     PARTITION BY RANGE (timestamp);
+     -- Full DDL for perforce.logs table in AlloyDB (PostgreSQL-compatible)
+      -- This mirrors Perforce structured log common fields as columns for efficient querying, retaining original 'f_' prefixes.
+      -- Event-specific fields go into JSONB for flexibility (e.g., f_lapse, f_action from Audit).
+      -- Partitioning: By RANGE on f_timestamp for time-series scalability (add child partitions as needed).
+      -- Indexes: Added for common queries (e.g., by f_cmdident, f_user, f_eventtype).
+
+      CREATE TABLE IF NOT EXISTS perforce.logs (
+            -- Core event identifier
+            f_eventtype TEXT NOT NULL,     -- e.g., '0.55' (CommandStart, versioned)
+            
+            -- Timestamp fields (primary time key)
+            f_timestamp TIMESTAMP NOT NULL,  -- Derived from f_timestamp (epoch seconds) + f_timestamp2 (nanos to ISO)
+            f_timestamp2 BIGINT,             -- Sub-second precision (nanos)
+            f_date TIMESTAMP,                -- Human-readable date (2024.1+; redundant with f_timestamp but kept for fidelity)
+            
+            -- Process and server context
+            f_pid BIGINT,                    -- Process/thread ID
+            f_cmdident TEXT NOT NULL,        -- Unique command ID (key for grouping)
+            f_serverid TEXT,                 -- Server instance ID
+            
+            -- Command sequence and context
+            f_cmdno INTEGER,                 -- Sequence number on connection
+            
+            -- User and client
+            f_user TEXT,                     -- Executing username
+            f_client TEXT,                   -- Workspace/stream name
+            
+            -- Command details
+            f_func TEXT NOT NULL,            -- Command name (e.g., 'submit')
+            f_host TEXT,                     -- Client IP/host
+            f_prog TEXT,                     -- Client program (e.g., 'p4')
+            f_version TEXT,                  -- Client version
+            f_args TEXT,                     -- Encoded command args (colon-separated)
+            f_cmdgroup TEXT,                 -- Command group (2022.2+)
+            
+            -- Flexible storage for event-specific fields (e.g., Audit: f_action, f_file, f_rev)
+            f_extra_data JSONB,             -- JSONB for vars like f_lapse, f_msg, f_file, etc. (non-common fields)
+            
+            -- Audit trail
+            ingested_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP  -- When loaded into AlloyDB
+        ) PARTITION BY RANGE (f_timestamp);
+        
+        -- Example child partitions (add one per time range, e.g., monthly)
+        -- CREATE TABLE perforce.logs_2025_11 PARTITION OF perforce.logs
+        -- FOR VALUES FROM ('2025-11-01') TO ('2025-12-01');
+        
+        -- Indexes for performance (adjust based on query patterns)
+        CREATE INDEX IF NOT EXISTS idx_logs_f_cmdident ON perforce.logs (f_cmdident);
+        CREATE INDEX IF NOT EXISTS idx_logs_f_user_f_func ON perforce.logs (f_user, f_func);
+        CREATE INDEX IF NOT EXISTS idx_logs_f_eventtype ON perforce.logs (f_eventtype);
+        CREATE INDEX IF NOT EXISTS idx_logs_f_timestamp ON perforce.logs (f_timestamp);
+        CREATE INDEX IF NOT EXISTS idx_logs_specific_data ON perforce.logs USING GIN (specific_data);  -- For JSONB queries
+        
+        -- Optional: Primary key on (f_cmdident, f_eventtype, f_timestamp) if uniqueness needed
+        -- ALTER TABLE perforce.logs ADD PRIMARY KEY (f_cmdident, f_eventtype, f_timestamp);
      ```
 - **Tips**: Rotate logs via `serverlog.max.chunksize`; filter with `p4 logparse` before loading to reduce volume.
 
