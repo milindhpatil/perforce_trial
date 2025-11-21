@@ -1,3 +1,5 @@
+# Create table schema for all metadata tables
+
 ```sql
 -- Consolidated DDL for Perforce Helix Core Server Metadata Schema (2025.1)
 -- Generated from chat history batches. All 114+ tables (unique, no duplicates).
