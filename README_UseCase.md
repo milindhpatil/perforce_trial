@@ -47,6 +47,61 @@ Integrating Generative AI (e.g., via Vertex AI or Grok API) atop AlloyDB superch
 
 Implementation: Start with low-code GenAI (e.g., Google Cloud's Duet AI) for SQL generation; scale to custom models. Ethical guardrails (e.g., bias checks) ensure reliable outputs.
 
+
+### Query User and Region
+
+```sql
+-- Users running commands by user region and host (machine) details
+WITH unique_commands AS (
+    SELECT 
+        f_cmdident,
+        f_user,
+        f_func,
+        f_host,  -- Raw host for JOIN
+        f_timestamp,
+        (specific_data->>'f_lapse')::INTEGER AS lapse_ms  -- Extract latency from JSONB (type 2 event)
+    FROM perforce.logs
+    WHERE f_eventtype LIKE '2.%'  -- Completed commands (CommandEnd)
+      AND f_timestamp >= CURRENT_DATE - INTERVAL '30 days'  -- Last 30 days
+      AND f_user IS NOT NULL  -- Valid users
+      AND f_host IS NOT NULL  -- Valid hosts
+)
+SELECT 
+    ur.region AS user_region,                -- Kept: Static user region
+    COALESCE(h.region, 'Unknown') AS host_region,  -- Dynamic host region
+    COALESCE(h.machine_id, uc.f_host) AS machine_id,  -- Enriched machine from hosts
+    uc.f_user AS user_name,
+    uc.f_func AS command_type,
+    COUNT(DISTINCT uc.f_cmdident) AS command_count,
+    AVG(uc.lapse_ms) AS avg_duration_ms,
+    MIN(uc.f_timestamp) AS first_command,
+    MAX(uc.f_timestamp) AS last_command
+FROM unique_commands uc
+JOIN perforce.user_regions ur ON uc.f_user = ur.user_id  -- User-level region
+LEFT JOIN perforce.hosts h ON uc.f_host = h.host         -- Host-level details (optional if unmatched)
+GROUP BY ur.region, h.region, h.machine_id, uc.f_host, uc.f_user, uc.f_func
+HAVING COUNT(DISTINCT uc.f_cmdident) > 0  -- Only active users
+ORDER BY user_region, host_region, machine_id, command_count DESC, user_name;
+```
+
+#### Key Updates and Explanation
+| Component | Purpose | Notes |
+|-----------|---------|-------|
+| **JOIN `user_regions ur`** | Retains user_region as a core field. | Always present (INNER JOIN assumes all users have regions; switch to LEFT if not). |
+| **LEFT JOIN `hosts h`** | Adds host_region and machine_id without dropping rows. | Fallbacks ensure no data loss (e.g., 'Unknown' for unmatched hosts). |
+| **SELECT `user_region` and `host_region`** | Distinguishes static vs. dynamic regions. | GROUP BY both for granular breakdowns (e.g., cross-region usage). |
+| **COALESCE for machine_id** | Prefers enriched `h.machine_id`; falls back to raw `f_host`. | Handles partial host data. |
+
+#### Sample Output (Hypothetical)
+| user_region | host_region | machine_id     | user_name | command_type | command_count | avg_duration_ms | first_command       | last_command        |
+|-------------|-------------|----------------|-----------|--------------|---------------|-----------------|---------------------|---------------------|
+| US-East    | US-East    | prod-server-01 | charlie  | edit        | 8            | 1800           | 2025-11-10 11:15:00 | 2025-11-21 08:00:00 |
+| US-East    | EU-West    | eu-prod-02    | alice    | sync        | 12           | 12000          | 2025-11-05 14:20:00 | 2025-11-19 10:45:00 |
+| EU-West    | EU-West    | eu-prod-02    | bob      | submit      | 25           | 4500           | 2025-11-01 09:00:00 | 2025-11-20 15:30:00 |
+| Unknown    | Unknown    | 192.168.1.100 | david    | revert      | 5            | 2200           | 2025-11-15 12:00:00 | 2025-11-20 16:00:00 |
+
+This preserves user regions while enriching with host details—perfect for compliance (e.g., "US users on EU machines?"). If `hosts.region` should override `user_regions.region`, we can adjust (e.g., `COALESCE(h.region, ur.region)`). Let me know for more refinements!
+
 ## Conclusion
 
 This project transforms Perforce data from silos into a strategic asset, delivering 3-5x ROI through efficiency and compliance gains while GenAI unlocks innovative features like intelligent querying. For a mid-sized engineering team, it equates to $450K+ annual value, with GenAI amplifying developer productivity across the SDLC. Next steps: Pilot one use case (e.g., incident response) and measure via KPIs like MTTR. For customization, reference Perforce/AlloyDB docs or engage stakeholders for a proof-of-concept.
