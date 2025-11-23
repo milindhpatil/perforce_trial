@@ -1116,6 +1116,286 @@ CREATE TABLE IF NOT EXISTS perforce.tiny_db (
 );
 COMMENT ON TABLE perforce.tiny_db IS 'Miscellaneous small key-value data';
 
+
+
+-- DDL for Missing Perforce Helix Core Tables (Inferred from Schema Patterns and Documentation)
+-- These are generated based on official descriptions, similar tables (e.g., rev series for rev* tables), and standard abstracts.
+-- Mapped to PostgreSQL/AlloyDB: TEXT for Key/Text/String/Domain/File/Mapping/Trait, INTEGER for Int/Rev, TIMESTAMP for Date, BIGINT for Change/FileSize.
+-- PKs inferred from indexes/descriptions. Add FKs/constraints in production (e.g., db.change.user → db.user.user).
+-- Schema: perforce (append to existing).
+
+-- db.bodresolve: Resolve data for stream specifications
+CREATE TABLE IF NOT EXISTS perforce.bodresolve (
+    toKey TEXT NOT NULL,     -- Key: Target stream spec key
+    fromKey TEXT NOT NULL,   -- Key: Source stream spec key
+    attr INTEGER NOT NULL,   -- Int: Field attribute ID
+    startfromChange BIGINT,  -- Change: Start change from source
+    endfromChange BIGINT,    -- Change: End change from source
+    starttoChange BIGINT,    -- Change: Start change to target
+    endtoChange BIGINT,      -- Change: End change to target
+    how TEXT,                -- IntegHow: Integration method
+    PRIMARY KEY (toKey, fromKey, attr, startfromChange, endfromChange)
+);
+COMMENT ON TABLE perforce.bodresolve IS 'Resolve data for stream specifications';
+
+-- db.bodresolvex: Pending integration records for shelved stream specifications
+CREATE TABLE IF NOT EXISTS perforce.bodresolvex (
+    toKey TEXT NOT NULL,     -- Key: Target stream spec key
+    fromKey TEXT NOT NULL,   -- Key: Source stream spec key
+    attr INTEGER NOT NULL,   -- Int: Field attribute ID
+    startfromChange BIGINT,  -- Change: Start change from source
+    endfromChange BIGINT,    -- Change: End change from source
+    starttoChange BIGINT,    -- Change: Start change to target
+    endtoChange BIGINT,      -- Change: End change to target
+    how TEXT,                -- IntegHow: Integration method
+    PRIMARY KEY (toKey, fromKey, attr, startfromChange, endfromChange)
+);
+COMMENT ON TABLE perforce.bodresolvex IS 'Pending integration records for shelved stream specifications';
+
+-- db.bodtext: Job data for job attributes
+CREATE TABLE IF NOT EXISTS perforce.bodtext (
+    job TEXT NOT NULL,       -- Key: Job ID
+    attr TEXT NOT NULL,      -- String: Attribute name
+    text TEXT NOT NULL,      -- Text: Indexed text from attribute
+    PRIMARY KEY (job, attr, text)
+);
+COMMENT ON TABLE perforce.bodtext IS 'Job data for job attributes';
+
+-- db.bodtextcx: Versioned openable spec fields
+CREATE TABLE IF NOT EXISTS perforce.bodtextcx (
+    specKey TEXT NOT NULL,   -- Domain: Spec key
+    attr TEXT NOT NULL,      -- String: Attribute name
+    version INTEGER NOT NULL, -- Int: Version
+    text TEXT,               -- Text: Field text
+    PRIMARY KEY (specKey, attr, version)
+);
+COMMENT ON TABLE perforce.bodtextcx IS 'Versioned openable spec fields';
+
+-- db.bodtexthx: Head revision of spec fields
+CREATE TABLE IF NOT EXISTS perforce.bodtexthx (
+    specKey TEXT NOT NULL,   -- Domain: Spec key
+    attr TEXT NOT NULL,      -- String: Attribute name
+    text TEXT NOT NULL,      -- Text: Indexed head text
+    PRIMARY KEY (specKey, attr, text)
+);
+COMMENT ON TABLE perforce.bodtexthx IS 'Head revision of spec fields';
+
+-- db.bodtextsx: Shelved openable spec fields
+CREATE TABLE IF NOT EXISTS perforce.bodtextsx (
+    specKey TEXT NOT NULL,   -- Domain: Spec key
+    attr TEXT NOT NULL,      -- String: Attribute name
+    text TEXT NOT NULL,      -- Text: Shelved text
+    PRIMARY KEY (specKey, attr, text)
+);
+COMMENT ON TABLE perforce.bodtextsx IS 'Shelved openable spec fields';
+
+-- db.bodtextwx: Open openable spec fields
+CREATE TABLE IF NOT EXISTS perforce.bodtextwx (
+    specKey TEXT NOT NULL,   -- Domain: Spec key
+    attr TEXT NOT NULL,      -- String: Attribute name
+    text TEXT NOT NULL,      -- Text: Open text
+    PRIMARY KEY (specKey, attr, text)
+);
+COMMENT ON TABLE perforce.bodtextwx IS 'Open openable spec fields';
+
+-- db.change: Changelists
+CREATE TABLE IF NOT EXISTS perforce.change (
+    change BIGINT NOT NULL,  -- Change: Changelist ID (PK)
+    descKey BIGINT,          -- Change: Description key
+    client TEXT,             -- Domain: Client workspace
+    user TEXT,               -- User: Submitter
+    date TIMESTAMP,          -- Date: Submission date
+    status TEXT,             -- ChangeStatus: State (pending/submitted)
+    description TEXT,        -- DescShort: Short description
+    stream TEXT,             -- Domain: Associated stream
+    PRIMARY KEY (change)
+);
+COMMENT ON TABLE perforce.change IS 'Changelists (core commit history)';
+
+-- db.changeidx: Secondary index of db.change/db.changex
+CREATE TABLE IF NOT EXISTS perforce.changeidx (
+    change BIGINT NOT NULL,  -- Change: Changelist ID
+    user TEXT NOT NULL,      -- User: User
+    date TIMESTAMP NOT NULL, -- Date: Date
+    PRIMARY KEY (change, user, date)
+);
+COMMENT ON TABLE perforce.changeidx IS 'Secondary index of db.change/db.changex';
+
+-- db.changex: Subset of db.change: records for pending changelists only
+CREATE TABLE IF NOT EXISTS perforce.changex (
+    change BIGINT NOT NULL,  -- Change: Pending changelist ID
+    descKey BIGINT,          -- Change: Description key
+    client TEXT,             -- Domain: Client
+    user TEXT,               -- User: User
+    status TEXT,             -- ChangeStatus: Pending status
+    PRIMARY KEY (change)
+);
+COMMENT ON TABLE perforce.changex IS 'Subset of db.change: records for pending changelists only';
+
+-- db.ckphist: Stores history of checkpoint events
+CREATE TABLE IF NOT EXISTS perforce.ckphist (
+    seq BIGINT NOT NULL,     -- Int: Sequence
+    date TIMESTAMP,          -- Date: Checkpoint date
+    type TEXT,               -- String: Checkpoint type
+    PRIMARY KEY (seq)
+);
+COMMENT ON TABLE perforce.ckphist IS 'Stores history of checkpoint events';
+
+-- db.resolve: Pending integration records
+CREATE TABLE IF NOT EXISTS perforce.resolve (
+    toFile TEXT NOT NULL,    -- File: Target file
+    fromFile TEXT NOT NULL,  -- File: Source file
+    startFromRev INTEGER,    -- Rev: Start from rev
+    endFromRev INTEGER,      -- Rev: End from rev
+    how TEXT,                -- IntegHow: Method
+    change BIGINT,           -- Change: Associated change
+    PRIMARY KEY (toFile, fromFile, startFromRev, endFromRev)
+);
+COMMENT ON TABLE perforce.resolve IS 'Pending integration records';
+
+-- db.resolveg: Resolve records for clients of type graph
+CREATE TABLE IF NOT EXISTS perforce.resolveg (
+    repo TEXT NOT NULL,      -- Key: Repository
+    toFile TEXT NOT NULL,    -- File: Target file
+    fromFile TEXT NOT NULL,  -- File: Source file
+    how TEXT,                -- IntegHow: Method
+    change BIGINT,           -- Change: Change
+    PRIMARY KEY (repo, toFile, fromFile)
+);
+COMMENT ON TABLE perforce.resolveg IS 'Resolve records for clients of type graph';
+
+-- db.resolvex: Pending integration records for shelved files
+CREATE TABLE IF NOT EXISTS perforce.resolvex (
+    toFile TEXT NOT NULL,    -- File: Target file
+    fromFile TEXT NOT NULL,  -- File: Source file
+    startFromRev INTEGER,    -- Rev: Start from rev
+    endFromRev INTEGER,      -- Rev: End from rev
+    how TEXT,                -- IntegHow: Method
+    change BIGINT,           -- Change: Shelved change
+    PRIMARY KEY (toFile, fromFile, startFromRev, endFromRev)
+);
+COMMENT ON TABLE perforce.resolvex IS 'Pending integration records for shelved files';
+
+-- db.revbx: Revision records for archived files
+CREATE TABLE IF NOT EXISTS perforce.revbx (
+    depotFile TEXT NOT NULL, -- File: Depot file
+    rev INTEGER NOT NULL,    -- Rev: Revision
+    change BIGINT,           -- Change: Change
+    action TEXT,             -- Action: Action
+    PRIMARY KEY (depotFile, rev)
+);
+COMMENT ON TABLE perforce.revbx IS 'Revision records for archived files';
+
+-- db.revcx: Secondary index of db.rev
+CREATE TABLE IF NOT EXISTS perforce.revcx (
+    depotFile TEXT NOT NULL, -- File: Depot file
+    rev INTEGER NOT NULL,    -- Rev: Revision
+    change BIGINT NOT NULL,  -- Change: Change (indexed)
+    PRIMARY KEY (depotFile, rev, change)
+);
+COMMENT ON TABLE perforce.revcx IS 'Secondary index of db.rev';
+
+-- db.revfs: Client filesystem file sizes
+CREATE TABLE IF NOT EXISTS perforce.revfs (
+    clientFile TEXT NOT NULL, -- File: Client file
+    depotFile TEXT NOT NULL, -- File: Depot file
+    rev INTEGER NOT NULL,    -- Rev: Revision
+    size BIGINT,             -- FileSize: Filesystem size
+    PRIMARY KEY (clientFile, depotFile, rev)
+);
+COMMENT ON TABLE perforce.revfs IS 'Client filesystem file sizes';
+
+-- db.revhx: Revision records for revisions NOT deleted at the head revision
+CREATE TABLE IF NOT EXISTS perforce.revhx (
+    depotFile TEXT NOT NULL, -- File: Depot file
+    rev INTEGER NOT NULL,    -- Rev: Head revision
+    change BIGINT,           -- Change: Change
+    action TEXT,             -- Action: Action
+    PRIMARY KEY (depotFile, rev)
+);
+COMMENT ON TABLE perforce.revhx IS 'Revision records for revisions NOT deleted at the head revision';
+
+-- db.review: User's review mappings
+CREATE TABLE IF NOT EXISTS perforce.review (
+    review_id INTEGER NOT NULL, -- Int: Review ID
+    user TEXT,                  -- User: Reviewer
+    change BIGINT,              -- Change: Associated change
+    PRIMARY KEY (review_id)
+);
+COMMENT ON TABLE perforce.review IS 'User's review mappings';
+
+-- db.revpx: Pending revision records
+CREATE TABLE IF NOT EXISTS perforce.revpx (
+    depotFile TEXT NOT NULL, -- File: Depot file
+    rev INTEGER NOT NULL,    -- Rev: Pending rev
+    change BIGINT,           -- Change: Pending change
+    action TEXT,             -- Action: Action
+    PRIMARY KEY (depotFile, rev)
+);
+COMMENT ON TABLE perforce.revpx IS 'Pending revision records';
+
+-- db.revsh: Revision records for shelved files
+CREATE TABLE IF NOT EXISTS perforce.revsh (
+    depotFile TEXT NOT NULL, -- File: Shelved file
+    rev INTEGER NOT NULL,    -- Rev: Shelved rev
+    change BIGINT,           -- Change: Shelved change
+    action TEXT,             -- Action: Action
+    PRIMARY KEY (depotFile, rev)
+);
+COMMENT ON TABLE perforce.revsh IS 'Revision records for shelved files';
+
+-- db.revstg: Temporary revision records for storage upgrade process
+CREATE TABLE IF NOT EXISTS perforce.revstg (
+    depotFile TEXT NOT NULL, -- File: Depot file
+    rev INTEGER NOT NULL,    -- Rev: Revision
+    change BIGINT,           -- Change: Change
+    PRIMARY KEY (depotFile, rev)
+);
+COMMENT ON TABLE perforce.revstg IS 'Temporary revision records for storage upgrade process';
+
+-- db.revsx: Revision records for spec depot files
+CREATE TABLE IF NOT EXISTS perforce.revsx (
+    specKey TEXT NOT NULL,   -- Domain: Spec key
+    rev INTEGER NOT NULL,    -- Rev: Spec rev
+    change BIGINT,           -- Change: Change
+    PRIMARY KEY (specKey, rev)
+);
+COMMENT ON TABLE perforce.revsx IS 'Revision records for spec depot files';
+
+-- db.revtr: Rev table for huge traits
+CREATE TABLE IF NOT EXISTS perforce.revtr (
+    depotFile TEXT NOT NULL, -- File: Depot file
+    rev INTEGER NOT NULL,    -- Rev: Revision
+    trait TEXT,              -- Trait: Huge trait
+    PRIMARY KEY (depotFile, rev, trait)
+);
+COMMENT ON TABLE perforce.revtr IS 'Rev table for huge traits';
+
+-- db.revtx: Task stream revision records
+CREATE TABLE IF NOT EXISTS perforce.revtx (
+    depotFile TEXT NOT NULL, -- File: Depot file
+    rev INTEGER NOT NULL,    -- Rev: Task rev
+    change BIGINT,           -- Change: Change
+    action TEXT,             -- Action: Action
+    PRIMARY KEY (depotFile, rev)
+);
+COMMENT ON TABLE perforce.revtx IS 'Task stream revision records';
+
+-- db.revux: Revision records for unload depot files
+CREATE TABLE IF NOT EXISTS perforce.revux (
+    depotFile TEXT NOT NULL, -- File: Unload file
+    rev INTEGER NOT NULL,    -- Rev: Revision
+    change BIGINT,           -- Change: Change
+    action TEXT,             -- Action: Action
+    PRIMARY KEY (depotFile, rev)
+);
+COMMENT ON TABLE perforce.revux IS 'Revision records for unload depot files';
+
+
+
+-- Notes: These are inferred from patterns (e.g., resolve tables mirror db.resolve; rev* mirror db.rev).
+-- For exactness, consult Perforce docs subpages. Run VACUUM ANALYZE after creation.
+
 -- Consolidated Indexes (from batches; deduplicated for perf)
 CREATE INDEX IF NOT EXISTS idx_config_server ON perforce.config (server_name);
 CREATE INDEX IF NOT EXISTS idx_configh_sname ON perforce.configh (s_name);
@@ -1215,6 +1495,35 @@ CREATE INDEX IF NOT EXISTS idx_workingx_change ON perforce.workingx (change);
 CREATE INDEX IF NOT EXISTS idx_pdb_lbr_size ON perforce.pdb_lbr (size);
 CREATE INDEX IF NOT EXISTS idx_rdb_lbr_file ON perforce.rdb_lbr (file);
 CREATE INDEX IF NOT EXISTS idx_tiny_db_value ON perforce.tiny_db (value);
+-- Indexes for Missing Tables (Basic; Extend as Needed)
+CREATE INDEX IF NOT EXISTS idx_bodresolve_toKey ON perforce.bodresolve (toKey);
+CREATE INDEX IF NOT EXISTS idx_bodresolvex_fromKey ON perforce.bodresolvex (fromKey);
+CREATE INDEX IF NOT EXISTS idx_bodtext_job ON perforce.bodtext (job);
+CREATE INDEX IF NOT EXISTS idx_bodtextcx_specKey ON perforce.bodtextcx (specKey);
+CREATE INDEX IF NOT EXISTS idx_bodtexthx_attr ON perforce.bodtexthx (attr);
+CREATE INDEX IF NOT EXISTS idx_bodtextsx_text ON perforce.bodtextsx (text);
+CREATE INDEX IF NOT EXISTS idx_bodtextwx_value ON perforce.bodtextwx (value);
+CREATE INDEX IF NOT EXISTS idx_change_user ON perforce.change (user);
+CREATE INDEX IF NOT EXISTS idx_change_date ON perforce.change (date);
+CREATE INDEX IF NOT EXISTS idx_changeidx_change ON perforce.changeidx (change);
+CREATE INDEX IF NOT EXISTS idx_changex_status ON perforce.changex (status);
+CREATE INDEX IF NOT EXISTS idx_ckphist_date ON perforce.ckphist (date);
+CREATE INDEX IF NOT EXISTS idx_resolve_toFile ON perforce.resolve (toFile);
+CREATE INDEX IF NOT EXISTS idx_resolveg_repo ON perforce.resolveg (repo);
+CREATE INDEX IF NOT EXISTS idx_resolvex_how ON perforce.resolvex (how);
+CREATE INDEX IF NOT EXISTS idx_revbx_action ON perforce.revbx (action);
+CREATE INDEX IF NOT EXISTS idx_revcx_change ON perforce.revcx (change);
+CREATE INDEX IF NOT EXISTS idx_revfs_size ON perforce.revfs (size);
+CREATE INDEX IF NOT EXISTS idx_revhx_depotFile ON perforce.revhx (depotFile);
+CREATE INDEX IF NOT EXISTS idx_review_user ON perforce.review (user);
+CREATE INDEX IF NOT EXISTS idx_revpx_change ON perforce.revpx (change);
+CREATE INDEX IF NOT EXISTS idx_revsh_shelved ON perforce.revsh (depotFile);
+CREATE INDEX IF NOT EXISTS idx_revstg_temp ON perforce.revstg (rev);
+CREATE INDEX IF NOT EXISTS idx_revsx_specKey ON perforce.revsx (specKey);
+CREATE INDEX IF NOT EXISTS idx_revtr_trait ON perforce.revtr (trait);
+CREATE INDEX IF NOT EXISTS idx_revtx_task ON perforce.revtx (depotFile);
+CREATE INDEX IF NOT EXISTS idx_revux_unload ON perforce.revux (rev);
 
 -- End of schema. Total unique tables: ~114 (consolidated from batches).
+
 ```
