@@ -1,4 +1,4 @@
-```python
+
 from sqlalchemy import Column, Integer, String, BigInteger, Text, Boolean, DateTime, ForeignKey, Binary, SmallInteger
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
@@ -1487,4 +1487,3 @@ class TinyDb(Base):
     __table_args__ = {'schema': 'perforce'}
     key = Column(String, primary_key=True)
     value = Column(Binary)
-```
