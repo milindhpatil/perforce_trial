@@ -1,12 +1,14 @@
+```python
 from sqlalchemy import Column, Integer, String, BigInteger, Text, Boolean, DateTime, ForeignKey, Binary, SmallInteger
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
 Base = declarative_base()
 
-# db.bodresolve - Resolve data for stream specifications
+# perforce.bodresolve - Resolve data for stream specifications
 class Bodresolve(Base):
-    __tablename__ = 'db.bodresolve'
+    __tablename__ = 'bodresolve'
+    __table_args__ = {'schema': 'perforce'}
     type = Column(String, primary_key=True)
     client = Column(String, primary_key=True)
     toKey = Column(String, primary_key=True)
@@ -18,9 +20,10 @@ class Bodresolve(Base):
     how = Column(String)
     state = Column(String)
 
-# db.bodresolvex - Pending integration records for shelved stream specifications
+# perforce.bodresolvex - Pending integration records for shelved stream specifications
 class Bodresolvex(Base):
-    __tablename__ = 'db.bodresolvex'
+    __tablename__ = 'bodresolvex'
+    __table_args__ = {'schema': 'perforce'}
     type = Column(String, primary_key=True)
     shelf = Column(Integer, primary_key=True)
     toKey = Column(String, primary_key=True)
@@ -33,35 +36,39 @@ class Bodresolvex(Base):
     state = Column(String)
     client = Column(String)
 
-# db.bodtext - Job data for job attributes
+# perforce.bodtext - Job data for job attributes
 class Bodtext(Base):
-    __tablename__ = 'db.bodtext'
+    __tablename__ = 'bodtext'
+    __table_args__ = {'schema': 'perforce'}
     key = Column(String, primary_key=True)
     attr = Column(Integer, primary_key=True)
     isBulk = Column(Integer)
     text = Column(Text)
 
-# db.bodtextcx - Versioned openable spec fields
+# perforce.bodtextcx - Versioned openable spec fields
 class Bodtextcx(Base):
-    __tablename__ = 'db.bodtextcx'
+    __tablename__ = 'bodtextcx'
+    __table_args__ = {'schema': 'perforce'}
     type = Column(Integer, primary_key=True)
     key = Column(String, primary_key=True)
     change = Column(Integer, primary_key=True)
     attr = Column(Integer, primary_key=True)
     text = Column(Text)
 
-# db.bodtexthx - Head revision of spec fields
+# perforce.bodtexthx - Head revision of spec fields
 class Bodtexthx(Base):
-    __tablename__ = 'db.bodtexthx'
+    __tablename__ = 'bodtexthx'
+    __table_args__ = {'schema': 'perforce'}
     type = Column(Integer, primary_key=True)
     key = Column(String, primary_key=True)
     attr = Column(Integer, primary_key=True)
     bulk = Column(Integer)
     text = Column(Text)
 
-# db.bodtextsx - Shelved openable spec fields
+# perforce.bodtextsx - Shelved openable spec fields
 class Bodtextsx(Base):
-    __tablename__ = 'db.bodtextsx'
+    __tablename__ = 'bodtextsx'
+    __table_args__ = {'schema': 'perforce'}
     type = Column(Integer, primary_key=True)
     shelf = Column(Integer, primary_key=True)
     key = Column(String, primary_key=True)
@@ -71,9 +78,10 @@ class Bodtextsx(Base):
     user = Column(String)
     action = Column(String)
 
-# db.bodtextwx - Open openable spec fields
+# perforce.bodtextwx - Open openable spec fields
 class Bodtextwx(Base):
-    __tablename__ = 'db.bodtextwx'
+    __tablename__ = 'bodtextwx'
+    __table_args__ = {'schema': 'perforce'}
     type = Column(Integer, primary_key=True)
     client = Column(String, primary_key=True)
     key = Column(String, primary_key=True)
@@ -83,9 +91,10 @@ class Bodtextwx(Base):
     user = Column(String)
     action = Column(String)
 
-# db.change - Changelists
+# perforce.change - Changelists
 class Change(Base):
-    __tablename__ = 'db.change'
+    __tablename__ = 'change'
+    __table_args__ = {'schema': 'perforce'}
     change = Column(Integer, primary_key=True)
     descKey = Column(Integer)
     client = Column(String)
@@ -100,15 +109,17 @@ class Change(Base):
     update = Column(BigInteger)
     stream = Column(String)
 
-# db.changeidx - Secondary index of db.change/db.changex
+# perforce.changeidx - Secondary index of perforce.change/perforce.changex
 class Changeidx(Base):
-    __tablename__ = 'db.changeidx'
+    __tablename__ = 'changeidx'
+    __table_args__ = {'schema': 'perforce'}
     identity = Column(String, primary_key=True)
     change = Column(Integer)
 
-# db.changex - Subset of db.change: records for pending changelists only
+# perforce.changex - Subset of perforce.change: records for pending changelists only
 class Changex(Base):
-    __tablename__ = 'db.changex'
+    __tablename__ = 'changex'
+    __table_args__ = {'schema': 'perforce'}
     change = Column(Integer, primary_key=True)
     descKey = Column(Integer)
     client = Column(String)
@@ -123,9 +134,10 @@ class Changex(Base):
     update = Column(BigInteger)
     stream = Column(String)
 
-# db.ckphist - Stores history of checkpoint events
+# perforce.ckphist - Stores history of checkpoint events
 class Ckphist(Base):
-    __tablename__ = 'db.ckphist'
+    __tablename__ = 'ckphist'
+    __table_args__ = {'schema': 'perforce'}
     start = Column(BigInteger, primary_key=True)
     jnum = Column(Integer, primary_key=True)
     who = Column(Integer, primary_key=True)
@@ -140,16 +152,18 @@ class Ckphist(Base):
     failed = Column(Integer)
     errmsg = Column(Binary)
 
-# db.config - Server configurations table
+# perforce.config - Server configurations table
 class Config(Base):
-    __tablename__ = 'db.config'
+    __tablename__ = 'config'
+    __table_args__ = {'schema': 'perforce'}
     serverName = Column(String, primary_key=True)
     name = Column(String, primary_key=True)
     value = Column(String)
 
-# db.configh - Server configuration history
+# perforce.configh - Server configuration history
 class Configh(Base):
-    __tablename__ = 'db.configh'
+    __tablename__ = 'configh'
+    __table_args__ = {'schema': 'perforce'}
     sName = Column(String, primary_key=True)
     name = Column(String, primary_key=True)
     version = Column(Integer, primary_key=True)
@@ -160,30 +174,34 @@ class Configh(Base):
     nvalue = Column(String)
     comment = Column(String)
 
-# db.counters - Counters table
+# perforce.counters - Counters table
 class Counters(Base):
-    __tablename__ = 'db.counters'
+    __tablename__ = 'counters'
+    __table_args__ = {'schema': 'perforce'}
     name = Column(String, primary_key=True)
     value = Column(String)
 
-# db.depot - Depot specifications
+# perforce.depot - Depot specifications
 class Depot(Base):
-    __tablename__ = 'db.depot'
+    __tablename__ = 'depot'
+    __table_args__ = {'schema': 'perforce'}
     name = Column(String, primary_key=True)
     type = Column(String)
     extra = Column(String)
     map = Column(String)
     objAddr = Column(String)
 
-# db.desc - Change descriptions
+# perforce.desc - Change descriptions
 class Desc(Base):
-    __tablename__ = 'db.desc'
+    __tablename__ = 'desc'
+    __table_args__ = {'schema': 'perforce'}
     descKey = Column(Integer, primary_key=True)
     description = Column(Text)
 
-# db.domain - Domains: depots, clients, labels, branches, streams, and typemap
+# perforce.domain - Domains: depots, clients, labels, branches, streams, and typemap
 class Domain(Base):
-    __tablename__ = 'db.domain'
+    __tablename__ = 'domain'
+    __table_args__ = {'schema': 'perforce'}
     name = Column(String, primary_key=True)
     type = Column(String)
     extra = Column(String)
@@ -199,16 +217,18 @@ class Domain(Base):
     serverId = Column(String)
     contents = Column(Integer)
 
-# db.excl - Exclusively locked (+l) files: enables coordinated file locking in commit/edge server environments
+# perforce.excl - Exclusively locked (+l) files: enables coordinated file locking in commit/edge server environments
 class Excl(Base):
-    __tablename__ = 'db.excl'
+    __tablename__ = 'excl'
+    __table_args__ = {'schema': 'perforce'}
     depotFile = Column(String, primary_key=True)
     client = Column(String)
     user = Column(String)
 
-# db.exclg - Graph depot LFS locks
+# perforce.exclg - Graph depot LFS locks
 class Exclg(Base):
-    __tablename__ = 'db.exclg'
+    __tablename__ = 'exclg'
+    __table_args__ = {'schema': 'perforce'}
     repo = Column(String, primary_key=True)
     ref = Column(String, primary_key=True)
     file = Column(String, primary_key=True)
@@ -216,9 +236,10 @@ class Exclg(Base):
     user = Column(String)
     created = Column(String)
 
-# db.exclgx - Graph depot LFS locks indexed by lockId
+# perforce.exclgx - Graph depot LFS locks indexed by lockId
 class Exclgx(Base):
-    __tablename__ = 'db.exclgx'
+    __tablename__ = 'exclgx'
+    __table_args__ = {'schema': 'perforce'}
     lockId = Column(String, primary_key=True)
     repo = Column(String)
     ref = Column(String)
@@ -226,9 +247,10 @@ class Exclgx(Base):
     user = Column(String)
     created = Column(String)
 
-# db.fix - Fix records: indexed by job
+# perforce.fix - Fix records: indexed by job
 class Fix(Base):
-    __tablename__ = 'db.fix'
+    __tablename__ = 'fix'
+    __table_args__ = {'schema': 'perforce'}
     job = Column(String, primary_key=True)
     change = Column(Integer, primary_key=True)
     date = Column(BigInteger)
@@ -236,9 +258,10 @@ class Fix(Base):
     client = Column(String)
     user = Column(String)
 
-# db.fixrev - Fix records: indexed by change
+# perforce.fixrev - Fix records: indexed by change
 class Fixrev(Base):
-    __tablename__ = 'db.fixrev'
+    __tablename__ = 'fixrev'
+    __table_args__ = {'schema': 'perforce'}
     change = Column(Integer, primary_key=True)
     job = Column(String, primary_key=True)
     date = Column(BigInteger)
@@ -246,9 +269,10 @@ class Fixrev(Base):
     client = Column(String)
     user = Column(String)
 
-# db.graphindex - Graph depot repository index data
+# perforce.graphindex - Graph depot repository index data
 class Graphindex(Base):
-    __tablename__ = 'db.graphindex'
+    __tablename__ = 'graphindex'
+    __table_args__ = {'schema': 'perforce'}
     id = Column(Integer, primary_key=True)
     name = Column(String, primary_key=True)
     date = Column(BigInteger, primary_key=True)
@@ -259,9 +283,10 @@ class Graphindex(Base):
     type = Column(String)
     lfsoid = Column(String)
 
-# db.graphperm - Graph depot permissions
+# perforce.graphperm - Graph depot permissions
 class Graphperm(Base):
-    __tablename__ = 'db.graphperm'
+    __tablename__ = 'graphperm'
+    __table_args__ = {'schema': 'perforce'}
     name = Column(String, primary_key=True)
     repo = Column(String, primary_key=True)
     ref = Column(String, primary_key=True)
@@ -269,9 +294,10 @@ class Graphperm(Base):
     user = Column(String, primary_key=True)
     perm = Column(String, primary_key=True)
 
-# db.group - Group specifications
+# perforce.group - Group specifications
 class Group(Base):
-    __tablename__ = 'db.group'
+    __tablename__ = 'group'
+    __table_args__ = {'schema': 'perforce'}
     user = Column(String, primary_key=True)
     group = Column(String, primary_key=True)
     type = Column(String)
@@ -284,9 +310,10 @@ class Group(Base):
     maxMemory = Column(String)
     idleTimeout = Column(Integer)
 
-# db.groupx - Per-group data to support group membership controlled by AD/LDAP group membership
+# perforce.groupx - Per-group data to support group membership controlled by AD/LDAP group membership
 class Groupx(Base):
-    __tablename__ = 'db.groupx'
+    __tablename__ = 'groupx'
+    __table_args__ = {'schema': 'perforce'}
     group = Column(String, primary_key=True)
     ldapConf = Column(String)
     ldapSearchQuery = Column(String)
@@ -294,36 +321,40 @@ class Groupx(Base):
     ldapDNAttribute = Column(String)
     description = Column(String)
 
-# db.have - Contains the 'have-list' for all clients
+# perforce.have - Contains the 'have-list' for all clients
 class Have(Base):
-    __tablename__ = 'db.have'
+    __tablename__ = 'have'
+    __table_args__ = {'schema': 'perforce'}
     clientFile = Column(String, primary_key=True)
     depotFile = Column(String)
     haveRev = Column(Integer)
     type = Column(String)
     time = Column(BigInteger)
 
-# db.have.pt - Placeholder for clients of types readonly, partitioned, and partitioned-jnl
+# perforce.have_pt - Placeholder for clients of types readonly, partitioned, and partitioned-jnl
 class HavePt(Base):
-    __tablename__ = 'db.have.pt'
+    __tablename__ = 'have_pt'
+    __table_args__ = {'schema': 'perforce'}
     clientFile = Column(String, primary_key=True)
     depotFile = Column(String)
     haveRev = Column(Integer)
     type = Column(String)
     time = Column(BigInteger)
 
-# db.have.rp - Contains the 'have-list' for clients of build-server replicas
+# perforce.have_rp - Contains the 'have-list' for clients of build-server replicas
 class HaveRp(Base):
-    __tablename__ = 'db.have.rp'
+    __tablename__ = 'have_rp'
+    __table_args__ = {'schema': 'perforce'}
     clientFile = Column(String, primary_key=True)
     depotFile = Column(String)
     haveRev = Column(Integer)
     type = Column(String)
     time = Column(BigInteger)
 
-# db.haveg - Contains the 'have-list' for graph depot files that are not at the same revision as defined by the client's have reference
+# perforce.haveg - Contains the 'have-list' for graph depot files that are not at the same revision as defined by the client's have reference
 class Haveg(Base):
-    __tablename__ = 'db.haveg'
+    __tablename__ = 'haveg'
+    __table_args__ = {'schema': 'perforce'}
     repo = Column(String, primary_key=True)
     clientFile = Column(String, primary_key=True)
     depotFile = Column(String)
@@ -334,9 +365,10 @@ class Haveg(Base):
     commitSha = Column(String)
     flags = Column(Integer)
 
-# db.haveview - Stores mapping changes for clients mapping graph depot content
+# perforce.haveview - Stores mapping changes for clients mapping graph depot content
 class Haveview(Base):
-    __tablename__ = 'db.haveview'
+    __tablename__ = 'haveview'
+    __table_args__ = {'schema': 'perforce'}
     name = Column(String, primary_key=True)
     seq = Column(Integer, primary_key=True)
     mapFlag = Column(String)
@@ -344,9 +376,10 @@ class Haveview(Base):
     depotFile = Column(String)
     comment = Column(String)
 
-# db.integed - Permanent integration records
+# perforce.integed - Permanent integration records
 class IntegEd(Base):
-    __tablename__ = 'db.integed'
+    __tablename__ = 'integed'
+    __table_args__ = {'schema': 'perforce'}
     toFile = Column(String, primary_key=True)
     fromFile = Column(String, primary_key=True)
     startFromRev = Column(Integer, primary_key=True)
@@ -356,9 +389,10 @@ class IntegEd(Base):
     how = Column(String)
     change = Column(Integer)
 
-# db.integedss - Stream specification integration history
+# perforce.integedss - Stream specification integration history
 class IntegEdss(Base):
-    __tablename__ = 'db.integedss'
+    __tablename__ = 'integedss'
+    __table_args__ = {'schema': 'perforce'}
     toKey = Column(String, primary_key=True)
     attr = Column(Integer, primary_key=True)
     fromKey = Column(String, primary_key=True)
@@ -371,9 +405,10 @@ class IntegEdss(Base):
     how = Column(String)
     change = Column(Integer)
 
-# db.integtx - Temporary integration records used by task streams
+# perforce.integtx - Temporary integration records used by task streams
 class Integtx(Base):
-    __tablename__ = 'db.integtx'
+    __tablename__ = 'integtx'
+    __table_args__ = {'schema': 'perforce'}
     toFile = Column(String, primary_key=True)
     fromFile = Column(String, primary_key=True)
     startFromRev = Column(Integer, primary_key=True)
@@ -383,24 +418,27 @@ class Integtx(Base):
     how = Column(String)
     change = Column(Integer)
 
-# db.ixtext - Indexing data for generic and job attributes
+# perforce.ixtext - Indexing data for generic and job attributes
 class Ixtext(Base):
-    __tablename__ = 'db.ixtext'
+    __tablename__ = 'ixtext'
+    __table_args__ = {'schema': 'perforce'}
     word = Column(String, primary_key=True)
     attr = Column(Integer, primary_key=True)
     value = Column(String, primary_key=True)
 
-# db.ixtexthx - Indexing data for head revision of all spec fields
+# perforce.ixtexthx - Indexing data for head revision of all spec fields
 class Ixtexthx(Base):
-    __tablename__ = 'db.ixtexthx'
+    __tablename__ = 'ixtexthx'
+    __table_args__ = {'schema': 'perforce'}
     type = Column(String, primary_key=True)
     word = Column(String, primary_key=True)
     attr = Column(Integer, primary_key=True)
     value = Column(String, primary_key=True)
 
-# db.jnlack - Tracks journal positions of all replicas
+# perforce.jnlack - Tracks journal positions of all replicas
 class Jnlack(Base):
-    __tablename__ = 'db.jnlack'
+    __tablename__ = 'jnlack'
+    __table_args__ = {'schema': 'perforce'}
     serverId = Column(String, primary_key=True)
     lastUpdate = Column(BigInteger)
     serverType = Column(String)
@@ -413,25 +451,28 @@ class Jnlack(Base):
     serverOptions = Column(String)
     failoverSeen = Column(String)
 
-# db.job - Job records
+# perforce.job - Job records
 class Job(Base):
-    __tablename__ = 'db.job'
+    __tablename__ = 'job'
+    __table_args__ = {'schema': 'perforce'}
     job = Column(String, primary_key=True)
     xuser = Column(String)
     xdate = Column(BigInteger)
     xstatus = Column(String)
     description = Column(Text)
 
-# db.label - Revisions of files in labels
+# perforce.label - Revisions of files in labels
 class Label(Base):
-    __tablename__ = 'db.label'
+    __tablename__ = 'label'
+    __table_args__ = {'schema': 'perforce'}
     name = Column(String, primary_key=True)
     depotFile = Column(String, primary_key=True)
     haveRev = Column(Integer)
 
-# db.ldap - LDAP specifications
+# perforce.ldap - LDAP specifications
 class Ldap(Base):
-    __tablename__ = 'db.ldap'
+    __tablename__ = 'ldap'
+    __table_args__ = {'schema': 'perforce'}
     name = Column(String, primary_key=True)
     host = Column(String)
     port = Column(Integer)
@@ -452,9 +493,10 @@ class Ldap(Base):
     attrEmail = Column(String)
     attrName = Column(String)
 
-# db.locks - Locked/Unlocked files
+# perforce.locks - Locked/Unlocked files
 class Locks(Base):
-    __tablename__ = 'db.locks'
+    __tablename__ = 'locks'
+    __table_args__ = {'schema': 'perforce'}
     depotFile = Column(String, primary_key=True)
     client = Column(String, primary_key=True)
     user = Column(String)
@@ -462,9 +504,10 @@ class Locks(Base):
     isLocked = Column(String)
     change = Column(Integer)
 
-# db.locksg - Lock records for clients of type graph
+# perforce.locksg - Lock records for clients of type graph
 class Locksg(Base):
-    __tablename__ = 'db.locksg'
+    __tablename__ = 'locksg'
+    __table_args__ = {'schema': 'perforce'}
     depotFile = Column(String, primary_key=True)
     client = Column(String, primary_key=True)
     user = Column(String)
@@ -472,23 +515,26 @@ class Locksg(Base):
     isLocked = Column(String)
     change = Column(Integer)
 
-# db.logger - Support for 'p4 logger' command. Logs any changes to changelists and jobs.
+# perforce.logger - Support for 'p4 logger' command. Logs any changes to changelists and jobs.
 class Logger(Base):
-    __tablename__ = 'db.logger'
+    __tablename__ = 'logger'
+    __table_args__ = {'schema': 'perforce'}
     seq = Column(Integer, primary_key=True)
     key = Column(String)
     attr = Column(String)
 
-# db.message - System messages
+# perforce.message - System messages
 class Message(Base):
-    __tablename__ = 'db.message'
+    __tablename__ = 'message'
+    __table_args__ = {'schema': 'perforce'}
     language = Column(String, primary_key=True)
     id = Column(Integer, primary_key=True)
     message = Column(Text)
 
-# db.monitor - P4 Server process information
+# perforce.monitor - P4 Server process information
 class Monitor(Base):
-    __tablename__ = 'db.monitor'
+    __tablename__ = 'monitor'
+    __table_args__ = {'schema': 'perforce'}
     id = Column(Integer, primary_key=True)
     user = Column(String)
     function = Column(String)
@@ -502,23 +548,26 @@ class Monitor(Base):
     cmt = Column(String)
     ident = Column(String)
 
-# db.nameval - A table to store key/value pairs
+# perforce.nameval - A table to store key/value pairs
 class Nameval(Base):
-    __tablename__ = 'db.nameval'
+    __tablename__ = 'nameval'
+    __table_args__ = {'schema': 'perforce'}
     name = Column(String, primary_key=True)
     value = Column(String)
 
-# db.object - Object storage for graph depots
+# perforce.object - Object storage for graph depots
 class Object(Base):
-    __tablename__ = 'db.object'
+    __tablename__ = 'object'
+    __table_args__ = {'schema': 'perforce'}
     sha = Column(String, primary_key=True)
     type = Column(String)
     data = Column(Binary)
     refCount = Column(Integer)
 
-# db.property - Properties
+# perforce.property - Properties
 class Property(Base):
-    __tablename__ = 'db.property'
+    __tablename__ = 'property'
+    __table_args__ = {'schema': 'perforce'}
     name = Column(String, primary_key=True)
     seq = Column(Integer, primary_key=True)
     type = Column(String, primary_key=True)
@@ -527,9 +576,10 @@ class Property(Base):
     date = Column(BigInteger)
     user = Column(String)
 
-# db.protect - The protections table
+# perforce.protect - The protections table
 class Protect(Base):
-    __tablename__ = 'db.protect'
+    __tablename__ = 'protect'
+    __table_args__ = {'schema': 'perforce'}
     seq = Column(Integer, primary_key=True)
     isGroup = Column(Integer)
     user = Column(String)
@@ -540,35 +590,39 @@ class Protect(Base):
     subPath = Column(String)
     update = Column(BigInteger)
 
-# db.pubkey - SSH Public keys
+# perforce.pubkey - SSH Public keys
 class Pubkey(Base):
-    __tablename__ = 'db.pubkey'
+    __tablename__ = 'pubkey'
+    __table_args__ = {'schema': 'perforce'}
     user = Column(String, primary_key=True)
     scope = Column(String, primary_key=True)
     key = Column(String)
     digest = Column(String)
     update = Column(BigInteger)
 
-# db.ref - Reference content for graph depots
+# perforce.ref - Reference content for graph depots
 class Ref(Base):
-    __tablename__ = 'db.ref'
+    __tablename__ = 'ref'
+    __table_args__ = {'schema': 'perforce'}
     repo = Column(String, primary_key=True)
     type = Column(String, primary_key=True)
     name = Column(String, primary_key=True)
     ref = Column(String)
     symref = Column(String)
 
-# db.refcntadjust - Graph depot reference count adjustments
+# perforce.refcntadjust - Graph depot reference count adjustments
 class Refcntadjust(Base):
-    __tablename__ = 'db.refcntadjust'
+    __tablename__ = 'refcntadjust'
+    __table_args__ = {'schema': 'perforce'}
     walked = Column(Integer, primary_key=True)
     sha = Column(String, primary_key=True)
     adjustment = Column(Integer)
     adjustObject = Column(Integer)
 
-# db.refhist - Reference history for graph depots
+# perforce.refhist - Reference history for graph depots
 class Refhist(Base):
-    __tablename__ = 'db.refhist'
+    __tablename__ = 'refhist'
+    __table_args__ = {'schema': 'perforce'}
     repo = Column(String, primary_key=True)
     type = Column(String, primary_key=True)
     name = Column(String, primary_key=True)
@@ -578,9 +632,10 @@ class Refhist(Base):
     ref = Column(String, primary_key=True)
     symref = Column(String)
 
-# db.remote - Remote specifications
+# perforce.remote - Remote specifications
 class Remote(Base):
-    __tablename__ = 'db.remote'
+    __tablename__ = 'remote'
+    __table_args__ = {'schema': 'perforce'}
     id = Column(String, primary_key=True)
     owner = Column(String)
     options = Column(Integer)
@@ -592,9 +647,10 @@ class Remote(Base):
     push = Column(Integer)
     rmtuser = Column(String)
 
-# db.repo - Repository specifications
+# perforce.repo - Repository specifications
 class Repo(Base):
-    __tablename__ = 'db.repo'
+    __tablename__ = 'repo'
+    __table_args__ = {'schema': 'perforce'}
     repo = Column(String, primary_key=True)
     owner = Column(String)
     created = Column(BigInteger)
@@ -611,9 +667,10 @@ class Repo(Base):
     gcmrrexcludedbranches = Column(String)
     gcmrrhidefetchurl = Column(Integer)
 
-# db.resolve - Pending integration records
+# perforce.resolve - Pending integration records
 class Resolve(Base):
-    __tablename__ = 'db.resolve'
+    __tablename__ = 'resolve'
+    __table_args__ = {'schema': 'perforce'}
     toFile = Column(String, primary_key=True)
     fromFile = Column(String, primary_key=True)
     startFromRev = Column(Integer, primary_key=True)
@@ -625,9 +682,10 @@ class Resolve(Base):
     baseFile = Column(String)
     baseRev = Column(Integer)
 
-# db.resolveg - Resolve records for clients of type graph
+# perforce.resolveg - Resolve records for clients of type graph
 class Resolveg(Base):
-    __tablename__ = 'db.resolveg'
+    __tablename__ = 'resolveg'
+    __table_args__ = {'schema': 'perforce'}
     toFile = Column(String, primary_key=True)
     fromFile = Column(String, primary_key=True)
     baseSHA = Column(String, primary_key=True)
@@ -635,9 +693,10 @@ class Resolveg(Base):
     how = Column(String)
     state = Column(String)
 
-# db.resolvex - Pending integration records for shelved files
+# perforce.resolvex - Pending integration records for shelved files
 class Resolvex(Base):
-    __tablename__ = 'db.resolvex'
+    __tablename__ = 'resolvex'
+    __table_args__ = {'schema': 'perforce'}
     toFile = Column(String, primary_key=True)
     fromFile = Column(String, primary_key=True)
     startFromRev = Column(Integer, primary_key=True)
@@ -649,9 +708,10 @@ class Resolvex(Base):
     baseFile = Column(String)
     baseRev = Column(Integer)
 
-# db.rev - Revision records
+# perforce.rev - Revision records
 class Rev(Base):
-    __tablename__ = 'db.rev'
+    __tablename__ = 'rev'
+    __table_args__ = {'schema': 'perforce'}
     depotFile = Column(String, primary_key=True)
     depotRev = Column(Integer, primary_key=True)
     type = Column(String)
@@ -667,9 +727,10 @@ class Rev(Base):
     lbrRev = Column(String)
     lbrType = Column(String)
 
-# db.revbx - Revision records for archived files
+# perforce.revbx - Revision records for archived files
 class Revbx(Base):
-    __tablename__ = 'db.revbx'
+    __tablename__ = 'revbx'
+    __table_args__ = {'schema': 'perforce'}
     depotFile = Column(String, primary_key=True)
     depotRev = Column(Integer, primary_key=True)
     type = Column(String)
@@ -685,17 +746,19 @@ class Revbx(Base):
     lbrRev = Column(String)
     lbrType = Column(String)
 
-# db.revcx - Secondary index of db.rev
+# perforce.revcx - Secondary index of perforce.rev
 class Revcx(Base):
-    __tablename__ = 'db.revcx'
+    __tablename__ = 'revcx'
+    __table_args__ = {'schema': 'perforce'}
     change = Column(Integer, primary_key=True)
     depotFile = Column(String, primary_key=True)
     depotRev = Column(Integer)
     action = Column(String)
 
-# db.revdx - Revision records for revisions deleted at the head revision
+# perforce.revdx - Revision records for revisions deleted at the head revision
 class Revdx(Base):
-    __tablename__ = 'db.revdx'
+    __tablename__ = 'revdx'
+    __table_args__ = {'schema': 'perforce'}
     depotFile = Column(String, primary_key=True)
     depotRev = Column(Integer)
     type = Column(String)
@@ -711,17 +774,19 @@ class Revdx(Base):
     lbrRev = Column(String)
     lbrType = Column(String)
 
-# db.revfs - Client filesystem file sizes
+# perforce.revfs - Client filesystem file sizes
 class Revfs(Base):
-    __tablename__ = 'db.revfs'
+    __tablename__ = 'revfs'
+    __table_args__ = {'schema': 'perforce'}
     depotFile = Column(String, primary_key=True)
     rev = Column(Integer, primary_key=True)
     clientType = Column(String, primary_key=True)
     clientSize = Column(BigInteger)
 
-# db.revhx - Revision records for revisions NOT deleted at the head revision
+# perforce.revhx - Revision records for revisions NOT deleted at the head revision
 class Revhx(Base):
-    __tablename__ = 'db.revhx'
+    __tablename__ = 'revhx'
+    __table_args__ = {'schema': 'perforce'}
     depotFile = Column(String, primary_key=True)
     depotRev = Column(Integer)
     type = Column(String)
@@ -737,18 +802,20 @@ class Revhx(Base):
     lbrRev = Column(String)
     lbrType = Column(String)
 
-# db.review - User's review mappings
+# perforce.review - User's review mappings
 class Review(Base):
-    __tablename__ = 'db.review'
+    __tablename__ = 'review'
+    __table_args__ = {'schema': 'perforce'}
     user = Column(String, primary_key=True)
     seq = Column(Integer, primary_key=True)
     mapFlag = Column(String)
     depotFile = Column(String)
     type = Column(String)
 
-# db.revpx - Pending revision records
+# perforce.revpx - Pending revision records
 class Revpx(Base):
-    __tablename__ = 'db.revpx'
+    __tablename__ = 'revpx'
+    __table_args__ = {'schema': 'perforce'}
     depotFile = Column(String, primary_key=True)
     depotRev = Column(Integer, primary_key=True)
     type = Column(String)
@@ -764,9 +831,10 @@ class Revpx(Base):
     lbrRev = Column(String)
     lbrType = Column(String)
 
-# db.revsh - Revision records for shelved files
+# perforce.revsh - Revision records for shelved files
 class Revsh(Base):
-    __tablename__ = 'db.revsh'
+    __tablename__ = 'revsh'
+    __table_args__ = {'schema': 'perforce'}
     depotFile = Column(String, primary_key=True)
     depotRev = Column(Integer, primary_key=True)
     type = Column(String, primary_key=True)
@@ -782,9 +850,10 @@ class Revsh(Base):
     lbrRev = Column(String)
     lbrType = Column(String)
 
-# db.revstg - Temporary revision records for storage upgrade process
+# perforce.revstg - Temporary revision records for storage upgrade process
 class Revstg(Base):
-    __tablename__ = 'db.revstg'
+    __tablename__ = 'revstg'
+    __table_args__ = {'schema': 'perforce'}
     depotFile = Column(String, primary_key=True)
     depotRev = Column(Integer, primary_key=True)
     type = Column(String)
@@ -800,9 +869,10 @@ class Revstg(Base):
     lbrRev = Column(String)
     lbrType = Column(String)
 
-# db.revsx - Revision records for spec depot files
+# perforce.revsx - Revision records for spec depot files
 class Revsx(Base):
-    __tablename__ = 'db.revsx'
+    __tablename__ = 'revsx'
+    __table_args__ = {'schema': 'perforce'}
     depotFile = Column(String, primary_key=True)
     depotRev = Column(Integer, primary_key=True)
     type = Column(String)
@@ -818,9 +888,10 @@ class Revsx(Base):
     lbrRev = Column(String)
     lbrType = Column(String)
 
-# db.revtr - Rev table for huge traits
+# perforce.revtr - Rev table for huge traits
 class Revtr(Base):
-    __tablename__ = 'db.revtr'
+    __tablename__ = 'revtr'
+    __table_args__ = {'schema': 'perforce'}
     depotFile = Column(String, primary_key=True)
     depotRev = Column(Integer, primary_key=True)
     type = Column(String)
@@ -836,9 +907,10 @@ class Revtr(Base):
     lbrRev = Column(String)
     lbrType = Column(String)
 
-# db.revtx - Task stream revision records
+# perforce.revtx - Task stream revision records
 class Revtx(Base):
-    __tablename__ = 'db.revtx'
+    __tablename__ = 'revtx'
+    __table_args__ = {'schema': 'perforce'}
     depotFile = Column(String, primary_key=True)
     depotRev = Column(Integer, primary_key=True)
     type = Column(String)
@@ -854,9 +926,10 @@ class Revtx(Base):
     lbrRev = Column(String)
     lbrType = Column(String)
 
-# db.revux - Revision records for unload depot files
+# perforce.revux - Revision records for unload depot files
 class Revux(Base):
-    __tablename__ = 'db.revux'
+    __tablename__ = 'revux'
+    __table_args__ = {'schema': 'perforce'}
     depotFile = Column(String, primary_key=True)
     depotRev = Column(Integer, primary_key=True)
     type = Column(String)
@@ -872,9 +945,10 @@ class Revux(Base):
     lbrRev = Column(String)
     lbrType = Column(String)
 
-# db.rmtview - View data for remote specifications
+# perforce.rmtview - View data for remote specifications
 class Rmtview(Base):
-    __tablename__ = 'db.rmtview'
+    __tablename__ = 'rmtview'
+    __table_args__ = {'schema': 'perforce'}
     id = Column(String, primary_key=True)
     seq = Column(Integer, primary_key=True)
     mapFlag = Column(String)
@@ -882,9 +956,10 @@ class Rmtview(Base):
     remoteFile = Column(String)
     retain = Column(Integer)
 
-# db.scanctl - ScanCtl
+# perforce.scanctl - ScanCtl
 class Scanctl(Base):
-    __tablename__ = 'db.scanctl'
+    __tablename__ = 'scanctl'
+    __table_args__ = {'schema': 'perforce'}
     depotPath = Column(String, primary_key=True)
     state = Column(String)
     seq = Column(Integer)
@@ -902,16 +977,18 @@ class Scanctl(Base):
     flags = Column(String)
     reqage = Column(Integer)
 
-# db.scandir - Scandir
+# perforce.scandir - Scandir
 class Scandir(Base):
-    __tablename__ = 'db.scandir'
+    __tablename__ = 'scandir'
+    __table_args__ = {'schema': 'perforce'}
     lskey = Column(String, primary_key=True)
     seq = Column(Integer, primary_key=True)
     file = Column(String)
 
-# db.sendq - Parallel file transmission work queue
+# perforce.sendq - Parallel file transmission work queue
 class Sendq(Base):
-    __tablename__ = 'db.sendq'
+    __tablename__ = 'sendq'
+    __table_args__ = {'schema': 'perforce'}
     taskid = Column(Integer, primary_key=True)
     seq = Column(Integer, primary_key=True)
     handle = Column(String)
@@ -937,9 +1014,10 @@ class Sendq(Base):
     olbrRev = Column(String)
     olbrType = Column(String)
 
-# db.sendq.pt - Per Client transmission work queue
+# perforce.sendq_pt - Per Client transmission work queue
 class SendqPt(Base):
-    __tablename__ = 'db.sendq.pt'
+    __tablename__ = 'sendq_pt'
+    __table_args__ = {'schema': 'perforce'}
     taskid = Column(Integer, primary_key=True)
     seq = Column(Integer, primary_key=True)
     handle = Column(String)
@@ -965,9 +1043,10 @@ class SendqPt(Base):
     olbrRev = Column(String)
     olbrType = Column(String)
 
-# db.server - Server specifications
+# perforce.server - Server specifications
 class Server(Base):
-    __tablename__ = 'db.server'
+    __tablename__ = 'server'
+    __table_args__ = {'schema': 'perforce'}
     id = Column(String, primary_key=True)
     type = Column(String)
     name = Column(String)
@@ -980,18 +1059,20 @@ class Server(Base):
     rplFrom = Column(String)
     failoverSeen = Column(String)
 
-# db.stash - Stash data
+# perforce.stash - Stash data
 class Stash(Base):
-    __tablename__ = 'db.stash'
+    __tablename__ = 'stash'
+    __table_args__ = {'schema': 'perforce'}
     client = Column(String, primary_key=True)
     stream = Column(String, primary_key=True)
     type = Column(String, primary_key=True)
     seq = Column(Integer, primary_key=True)
     change = Column(Integer)
 
-# db.storage - Track references to archive files
+# perforce.storage - Track references to archive files
 class Storage(Base):
-    __tablename__ = 'db.storage'
+    __tablename__ = 'storage'
+    __table_args__ = {'schema': 'perforce'}
     file = Column(String, primary_key=True)
     rev = Column(String, primary_key=True)
     type = Column(String, primary_key=True)
@@ -1002,18 +1083,20 @@ class Storage(Base):
     compCksum = Column(String)
     date = Column(BigInteger)
 
-# db.storageg - Track references to Graph Depot archive files (for future use)
+# perforce.storageg - Track references to Graph Depot archive files (for future use)
 class Storageg(Base):
-    __tablename__ = 'db.storageg'
+    __tablename__ = 'storageg'
+    __table_args__ = {'schema': 'perforce'}
     repo = Column(String, primary_key=True)
     sha = Column(String, primary_key=True)
     type = Column(String, primary_key=True)
     refCount = Column(Integer)
     date = Column(BigInteger)
 
-# db.storagesh - Track references to shelved archive files
+# perforce.storagesh - Track references to shelved archive files
 class Storagesh(Base):
-    __tablename__ = 'db.storagesh'
+    __tablename__ = 'storagesh'
+    __table_args__ = {'schema': 'perforce'}
     file = Column(String, primary_key=True)
     rev = Column(String, primary_key=True)
     type = Column(String, primary_key=True)
@@ -1024,18 +1107,20 @@ class Storagesh(Base):
     compCksum = Column(String)
     date = Column(BigInteger)
 
-# db.storagesx - Digest and filesize based index for db.storagesh, for finding shelved files with identical content
+# perforce.storagesx - Digest and filesize based index for perforce.storagesh, for finding shelved files with identical content
 class Storagesx(Base):
-    __tablename__ = 'db.storagesx'
+    __tablename__ = 'storagesx'
+    __table_args__ = {'schema': 'perforce'}
     digest = Column(String, primary_key=True)
     size = Column(BigInteger, primary_key=True)
     file = Column(String, primary_key=True)
     rev = Column(String, primary_key=True)
     type = Column(String, primary_key=True)
 
-# db.stream - Stream specifications
+# perforce.stream - Stream specifications
 class Stream(Base):
-    __tablename__ = 'db.stream'
+    __tablename__ = 'stream'
+    __table_args__ = {'schema': 'perforce'}
     stream = Column(String, primary_key=True)
     parent = Column(String)
     title = Column(String)
@@ -1049,22 +1134,25 @@ class Stream(Base):
     status = Column(String)
     parentview = Column(String)
 
-# db.streamq - Track streams for which the stream views should be regenerated
+# perforce.streamq - Track streams for which the stream views should be regenerated
 class Streamq(Base):
-    __tablename__ = 'db.streamq'
+    __tablename__ = 'streamq'
+    __table_args__ = {'schema': 'perforce'}
     stream = Column(String, primary_key=True)
 
-# db.streamrelation - Relationships between streams
+# perforce.streamrelation - Relationships between streams
 class Streamrelation(Base):
-    __tablename__ = 'db.streamrelation'
+    __tablename__ = 'streamrelation'
+    __table_args__ = {'schema': 'perforce'}
     independentStream = Column(String, primary_key=True)
     dependentStream = Column(String, primary_key=True)
     type = Column(String)
     parentView = Column(String)
 
-# db.streamview - Precomputed stream views
+# perforce.streamview - Precomputed stream views
 class Streamview(Base):
-    __tablename__ = 'db.streamview'
+    __tablename__ = 'streamview'
+    __table_args__ = {'schema': 'perforce'}
     name = Column(String, primary_key=True)
     seq = Column(Integer, primary_key=True)
     mapFlag = Column(String)
@@ -1072,9 +1160,10 @@ class Streamview(Base):
     depotFile = Column(String)
     comment = Column(String)
 
-# db.streamviewx - Indexing for precomputed stream views
+# perforce.streamviewx - Indexing for precomputed stream views
 class Streamviewx(Base):
-    __tablename__ = 'db.streamviewx'
+    __tablename__ = 'streamviewx'
+    __table_args__ = {'schema': 'perforce'}
     depotPath = Column(String, primary_key=True)
     viewPath = Column(String, primary_key=True)
     mapFlag = Column(String, primary_key=True)
@@ -1085,25 +1174,28 @@ class Streamviewx(Base):
     componentPrefixes = Column(String)
     effectiveComponentType = Column(String)
 
-# db.submodule - Submodule configuration data
+# perforce.submodule - Submodule configuration data
 class Submodule(Base):
-    __tablename__ = 'db.submodule'
+    __tablename__ = 'submodule'
+    __table_args__ = {'schema': 'perforce'}
     repo = Column(String, primary_key=True)
     path = Column(String, primary_key=True)
     subrepo = Column(String)
 
-# db.svrview - View data for servers specifications
+# perforce.svrview - View data for servers specifications
 class Svrview(Base):
-    __tablename__ = 'db.svrview'
+    __tablename__ = 'svrview'
+    __table_args__ = {'schema': 'perforce'}
     id = Column(String, primary_key=True)
     type = Column(String, primary_key=True)
     seq = Column(Integer, primary_key=True)
     mapFlag = Column(String)
     viewFile = Column(String)
 
-# db.template - Streams templates
+# perforce.template - Streams templates
 class Template(Base):
-    __tablename__ = 'db.template'
+    __tablename__ = 'template'
+    __table_args__ = {'schema': 'perforce'}
     name = Column(String, primary_key=True)
     change = Column(Integer, primary_key=True)
     seq = Column(Integer, primary_key=True)
@@ -1114,9 +1206,10 @@ class Template(Base):
     depotFile = Column(String)
     changeMap = Column(String)
 
-# db.templatesx - Shelved stream templates
+# perforce.templatesx - Shelved stream templates
 class Templatesx(Base):
-    __tablename__ = 'db.templatesx'
+    __tablename__ = 'templatesx'
+    __table_args__ = {'schema': 'perforce'}
     shelf = Column(Integer, primary_key=True)
     name = Column(String, primary_key=True)
     seq = Column(Integer, primary_key=True)
@@ -1131,9 +1224,10 @@ class Templatesx(Base):
     user = Column(String)
     action = Column(String)
 
-# db.templatewx - Pending stream templates
+# perforce.templatewx - Pending stream templates
 class Templatewx(Base):
-    __tablename__ = 'db.templatewx'
+    __tablename__ = 'templatewx'
+    __table_args__ = {'schema': 'perforce'}
     client = Column(String, primary_key=True)
     name = Column(String, primary_key=True)
     seq = Column(Integer, primary_key=True)
@@ -1148,9 +1242,10 @@ class Templatewx(Base):
     user = Column(String)
     action = Column(String)
 
-# db.ticket - Second factor authentication state on a per user/host basis
+# perforce.ticket - Second factor authentication state on a per user/host basis
 class Ticket(Base):
-    __tablename__ = 'db.ticket'
+    __tablename__ = 'ticket'
+    __table_args__ = {'schema': 'perforce'}
     user = Column(String, primary_key=True)
     host = Column(String, primary_key=True)
     ticket = Column(String)
@@ -1158,9 +1253,10 @@ class Ticket(Base):
     token = Column(String)
     updateDate = Column(BigInteger)
 
-# db.ticket.rp - Second factor authentication state on a per user/host basis (replica)
+# perforce.ticket_rp - Second factor authentication state on a per user/host basis (replica)
 class TicketRp(Base):
-    __tablename__ = 'db.ticket.rp'
+    __tablename__ = 'ticket_rp'
+    __table_args__ = {'schema': 'perforce'}
     user = Column(String, primary_key=True)
     host = Column(String, primary_key=True)
     ticket = Column(String)
@@ -1168,9 +1264,10 @@ class TicketRp(Base):
     token = Column(String)
     updateDate = Column(BigInteger)
 
-# db.topology - Topology information
+# perforce.topology - Topology information
 class Topology(Base):
-    __tablename__ = 'db.topology'
+    __tablename__ = 'topology'
+    __table_args__ = {'schema': 'perforce'}
     address = Column(String, primary_key=True)
     destAddress = Column(String, primary_key=True)
     serverID = Column(String, primary_key=True)
@@ -1185,17 +1282,19 @@ class Topology(Base):
     tid = Column(String)
     version = Column(String)
 
-# db.traits - Attributes associated with file revisions
+# perforce.traits - Attributes associated with file revisions
 class Traits(Base):
-    __tablename__ = 'db.traits'
+    __tablename__ = 'traits'
+    __table_args__ = {'schema': 'perforce'}
     traitLot = Column(Integer, primary_key=True)
     name = Column(String, primary_key=True)
     type = Column(String)
     value = Column(Binary)
 
-# db.trigger - Trigger specifications
+# perforce.trigger - Trigger specifications
 class Trigger(Base):
-    __tablename__ = 'db.trigger'
+    __tablename__ = 'trigger'
+    __table_args__ = {'schema': 'perforce'}
     seq = Column(Integer, primary_key=True)
     name = Column(String)
     mapFlag = Column(String)
@@ -1204,9 +1303,10 @@ class Trigger(Base):
     trigger = Column(String)
     action = Column(String)
 
-# db.upgrades - Store server upgrade info
+# perforce.upgrades - Store server upgrade info
 class Upgrades(Base):
-    __tablename__ = 'db.upgrades'
+    __tablename__ = 'upgrades'
+    __table_args__ = {'schema': 'perforce'}
     seq = Column(Integer, primary_key=True)
     name = Column(String)
     state = Column(String)
@@ -1214,9 +1314,10 @@ class Upgrades(Base):
     enddate = Column(BigInteger)
     info = Column(String)
 
-# db.upgrades.rp - Store replica upgrade info
+# perforce.upgrades_rp - Store replica upgrade info
 class UpgradesRp(Base):
-    __tablename__ = 'db.upgrades.rp'
+    __tablename__ = 'upgrades_rp'
+    __table_args__ = {'schema': 'perforce'}
     seq = Column(Integer, primary_key=True)
     name = Column(String)
     state = Column(String)
@@ -1224,9 +1325,10 @@ class UpgradesRp(Base):
     enddate = Column(BigInteger)
     info = Column(String)
 
-# db.user - User specifications
+# perforce.user - User specifications
 class User(Base):
-    __tablename__ = 'db.user'
+    __tablename__ = 'user'
+    __table_args__ = {'schema': 'perforce'}
     user = Column(String, primary_key=True)
     email = Column(String)
     jobView = Column(String)
@@ -1243,9 +1345,10 @@ class User(Base):
     attempts = Column(BigInteger)
     auth = Column(String)
 
-# db.user.rp - Used by replica server's to store login information
+# perforce.user_rp - Used by replica server's to store login information
 class UserRp(Base):
-    __tablename__ = 'db.user.rp'
+    __tablename__ = 'user_rp'
+    __table_args__ = {'schema': 'perforce'}
     user = Column(String, primary_key=True)
     email = Column(String)
     jobView = Column(String)
@@ -1262,16 +1365,18 @@ class UserRp(Base):
     attempts = Column(BigInteger)
     auth = Column(String)
 
-# db.uxtext - Indexing data for P4 Code Review
+# perforce.uxtext - Indexing data for P4 Code Review
 class Uxtext(Base):
-    __tablename__ = 'db.uxtext'
+    __tablename__ = 'uxtext'
+    __table_args__ = {'schema': 'perforce'}
     word = Column(String, primary_key=True)
     attr = Column(Integer, primary_key=True)
     value = Column(String, primary_key=True)
 
-# db.view - View data for domain records
+# perforce.view - View data for domain records
 class View(Base):
-    __tablename__ = 'db.view'
+    __tablename__ = 'view'
+    __table_args__ = {'schema': 'perforce'}
     name = Column(String, primary_key=True)
     seq = Column(Integer, primary_key=True)
     mapFlag = Column(String)
@@ -1279,9 +1384,10 @@ class View(Base):
     depotFile = Column(String)
     comment = Column(String)
 
-# db.view.rp - View data for clients of build-server replicas
+# perforce.view_rp - View data for clients of build-server replicas
 class ViewRp(Base):
-    __tablename__ = 'db.view.rp'
+    __tablename__ = 'view_rp'
+    __table_args__ = {'schema': 'perforce'}
     name = Column(String, primary_key=True)
     seq = Column(Integer, primary_key=True)
     mapFlag = Column(String)
@@ -1289,9 +1395,10 @@ class ViewRp(Base):
     depotFile = Column(String)
     comment = Column(String)
 
-# db.working - Records for work in progress
+# perforce.working - Records for work in progress
 class Working(Base):
-    __tablename__ = 'db.working'
+    __tablename__ = 'working'
+    __table_args__ = {'schema': 'perforce'}
     clientFile = Column(String, primary_key=True)
     depotFile = Column(String)
     client = Column(String)
@@ -1312,9 +1419,10 @@ class Working(Base):
     movedFile = Column(String)
     status = Column(String)
 
-# db.workingg - Working records for clients of type graph
+# perforce.workingg - Working records for clients of type graph
 class Workingg(Base):
-    __tablename__ = 'db.workingg'
+    __tablename__ = 'workingg'
+    __table_args__ = {'schema': 'perforce'}
     clientFile = Column(String, primary_key=True)
     depotFile = Column(String)
     client = Column(String)
@@ -1337,9 +1445,10 @@ class Workingg(Base):
     blobSha = Column(String)
     repo = Column(String)
 
-# db.workingx - Records for shelved open files
+# perforce.workingx - Records for shelved open files
 class Workingx(Base):
-    __tablename__ = 'db.workingx'
+    __tablename__ = 'workingx'
+    __table_args__ = {'schema': 'perforce'}
     clientFile = Column(String, primary_key=True)
     depotFile = Column(String)
     client = Column(String)
@@ -1362,16 +1471,20 @@ class Workingx(Base):
 
 # Specialized tables (proxy/replica/tiny)
 class PdbLbr(Base):
-    __tablename__ = 'pdb.lbr'
+    __tablename__ = 'pdb_lbr'
+    __table_args__ = {'schema': 'perforce'}
     file = Column(String, primary_key=True)
     rev = Column(String, primary_key=True)
 
 class RdbLbr(Base):
-    __tablename__ = 'rdb.lbr'
+    __tablename__ = 'rdb_lbr'
+    __table_args__ = {'schema': 'perforce'}
     file = Column(String, primary_key=True)
     rev = Column(String, primary_key=True)
 
 class TinyDb(Base):
-    __tablename__ = 'tiny.db'
+    __tablename__ = 'tiny_db'
+    __table_args__ = {'schema': 'perforce'}
     key = Column(String, primary_key=True)
     value = Column(Binary)
+```
