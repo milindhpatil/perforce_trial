@@ -14,9 +14,20 @@ Based on the P4 Server Schema Documentation (2025.1), below are the `CREATE TABL
 
 Primary keys are defined based on the "Indexed on" fields (assumed to be unique/composite primary keys). Indexes are added for secondary indexing where specified. Tables are created in alphabetical order for the main `db.*` tables (excluding proxy/replica-specific like `pdb.lbr`, `rdb.lbr`, and `tiny.db` as they are specialized).
 
+### Updated PostgreSQL Schema Creation Script
+
+Below is the modified SQL script incorporating:
+1. `CREATE SCHEMA IF NOT EXISTS perforce;` at the beginning.
+2. `CREATE TABLE IF NOT EXISTS` for all tables 
+
+This ensures idempotency (safe to run multiple times without errors).
+
 ```sql
+-- Create schema if not exists
+CREATE SCHEMA IF NOT EXISTS perforce;
+
 -- perforce.bodresolve - Resolve data for stream specifications
-CREATE TABLE perforce.bodresolve (
+CREATE TABLE IF NOT EXISTS perforce.bodresolve (
     "type" TEXT,
     "client" TEXT,
     "toKey" TEXT,
@@ -31,7 +42,7 @@ CREATE TABLE perforce.bodresolve (
 );
 
 -- perforce.bodresolvex - Pending integration records for shelved stream specifications
-CREATE TABLE perforce.bodresolvex (
+CREATE TABLE IF NOT EXISTS perforce.bodresolvex (
     "type" TEXT,
     "shelf" INTEGER,
     "toKey" TEXT,
@@ -47,7 +58,7 @@ CREATE TABLE perforce.bodresolvex (
 );
 
 -- perforce.bodtext - Job data for job attributes
-CREATE TABLE perforce.bodtext (
+CREATE TABLE IF NOT EXISTS perforce.bodtext (
     "key" TEXT,
     "attr" INTEGER,
     "isBulk" INTEGER,
@@ -56,7 +67,7 @@ CREATE TABLE perforce.bodtext (
 );
 
 -- perforce.bodtextcx - Versioned openable spec fields
-CREATE TABLE perforce.bodtextcx (
+CREATE TABLE IF NOT EXISTS perforce.bodtextcx (
     "type" INTEGER,
     "key" TEXT,
     "change" INTEGER,
@@ -66,7 +77,7 @@ CREATE TABLE perforce.bodtextcx (
 );
 
 -- perforce.bodtexthx - Head revision of spec fields
-CREATE TABLE perforce.bodtexthx (
+CREATE TABLE IF NOT EXISTS perforce.bodtexthx (
     "type" INTEGER,
     "key" TEXT,
     "attr" INTEGER,
@@ -76,7 +87,7 @@ CREATE TABLE perforce.bodtexthx (
 );
 
 -- perforce.bodtextsx - Shelved openable spec fields
-CREATE TABLE perforce.bodtextsx (
+CREATE TABLE IF NOT EXISTS perforce.bodtextsx (
     "type" INTEGER,
     "shelf" INTEGER,
     "key" TEXT,
@@ -89,7 +100,7 @@ CREATE TABLE perforce.bodtextsx (
 );
 
 -- perforce.bodtextwx - Open openable spec fields
-CREATE TABLE perforce.bodtextwx (
+CREATE TABLE IF NOT EXISTS perforce.bodtextwx (
     "type" INTEGER,
     "client" TEXT,
     "key" TEXT,
@@ -102,7 +113,7 @@ CREATE TABLE perforce.bodtextwx (
 );
 
 -- perforce.change - Changelists
-CREATE TABLE perforce.change (
+CREATE TABLE IF NOT EXISTS perforce.change (
     "change" INTEGER,
     "descKey" INTEGER,
     "client" TEXT,
@@ -118,17 +129,17 @@ CREATE TABLE perforce.change (
     "stream" TEXT,
     PRIMARY KEY ("change")
 );
-CREATE INDEX idx_perforce_change_identity ON perforce.change ("identity");
+CREATE INDEX IF NOT EXISTS idx_perforce_change_identity ON perforce.change ("identity");
 
 -- perforce.changeidx - Secondary index of perforce.change/perforce.changex
-CREATE TABLE perforce.changeidx (
+CREATE TABLE IF NOT EXISTS perforce.changeidx (
     "identity" TEXT,
     "change" INTEGER,
     PRIMARY KEY ("identity")
 );
 
 -- perforce.changex - Subset of perforce.change: records for pending changelists only
-CREATE TABLE perforce.changex (
+CREATE TABLE IF NOT EXISTS perforce.changex (
     "change" INTEGER,
     "descKey" INTEGER,
     "client" TEXT,
@@ -146,7 +157,7 @@ CREATE TABLE perforce.changex (
 );
 
 -- perforce.ckphist - Stores history of checkpoint events
-CREATE TABLE perforce.ckphist (
+CREATE TABLE IF NOT EXISTS perforce.ckphist (
     "start" BIGINT,
     "jnum" INTEGER,
     "who" INTEGER,
@@ -164,7 +175,7 @@ CREATE TABLE perforce.ckphist (
 );
 
 -- perforce.config - Server configurations table
-CREATE TABLE perforce.config (
+CREATE TABLE IF NOT EXISTS perforce.config (
     "serverName" TEXT,
     "name" TEXT,
     "value" TEXT,
@@ -172,7 +183,7 @@ CREATE TABLE perforce.config (
 );
 
 -- perforce.configh - Server configuration history
-CREATE TABLE perforce.configh (
+CREATE TABLE IF NOT EXISTS perforce.configh (
     "sName" TEXT,
     "name" TEXT,
     "version" INTEGER,
@@ -186,14 +197,14 @@ CREATE TABLE perforce.configh (
 );
 
 -- perforce.counters - Counters table
-CREATE TABLE perforce.counters (
+CREATE TABLE IF NOT EXISTS perforce.counters (
     "name" TEXT,
     "value" TEXT,
     PRIMARY KEY ("name")
 );
 
 -- perforce.depot - Depot specifications
-CREATE TABLE perforce.depot (
+CREATE TABLE IF NOT EXISTS perforce.depot (
     "name" TEXT,
     "type" TEXT,
     "extra" TEXT,
@@ -203,14 +214,14 @@ CREATE TABLE perforce.depot (
 );
 
 -- perforce.desc - Change descriptions
-CREATE TABLE perforce.desc (
+CREATE TABLE IF NOT EXISTS perforce.desc (
     "descKey" INTEGER,
     "description" TEXT,
     PRIMARY KEY ("descKey")
 );
 
 -- perforce.domain - Domains: depots, clients, labels, branches, streams, and typemap
-CREATE TABLE perforce.domain (
+CREATE TABLE IF NOT EXISTS perforce.domain (
     "name" TEXT,
     "type" TEXT,
     "extra" TEXT,
@@ -229,7 +240,7 @@ CREATE TABLE perforce.domain (
 );
 
 -- perforce.excl - Exclusively locked (+l) files: enables coordinated file locking in commit/edge server environments
-CREATE TABLE perforce.excl (
+CREATE TABLE IF NOT EXISTS perforce.excl (
     "depotFile" TEXT,
     "client" TEXT,
     "user" TEXT,
@@ -237,7 +248,7 @@ CREATE TABLE perforce.excl (
 );
 
 -- perforce.exclg - Graph depot LFS locks
-CREATE TABLE perforce.exclg (
+CREATE TABLE IF NOT EXISTS perforce.exclg (
     "repo" TEXT,
     "ref" TEXT,
     "file" TEXT,
@@ -248,7 +259,7 @@ CREATE TABLE perforce.exclg (
 );
 
 -- perforce.exclgx - Graph depot LFS locks indexed by lockId
-CREATE TABLE perforce.exclgx (
+CREATE TABLE IF NOT EXISTS perforce.exclgx (
     "lockId" TEXT,
     "repo" TEXT,
     "ref" TEXT,
@@ -259,7 +270,7 @@ CREATE TABLE perforce.exclgx (
 );
 
 -- perforce.fix - Fix records: indexed by job
-CREATE TABLE perforce.fix (
+CREATE TABLE IF NOT EXISTS perforce.fix (
     "job" TEXT,
     "change" INTEGER,
     "date" BIGINT,
@@ -268,10 +279,10 @@ CREATE TABLE perforce.fix (
     "user" TEXT,
     PRIMARY KEY ("job", "change")
 );
-CREATE INDEX idx_perforce_fix_change ON perforce.fix ("change");
+CREATE INDEX IF NOT EXISTS idx_perforce_fix_change ON perforce.fix ("change");
 
 -- perforce.fixrev - Fix records: indexed by change
-CREATE TABLE perforce.fixrev (
+CREATE TABLE IF NOT EXISTS perforce.fixrev (
     "job" TEXT,
     "change" INTEGER,
     "date" BIGINT,
@@ -282,7 +293,7 @@ CREATE TABLE perforce.fixrev (
 );
 
 -- perforce.graphindex - Graph depot repository index data
-CREATE TABLE perforce.graphindex (
+CREATE TABLE IF NOT EXISTS perforce.graphindex (
     "id" INTEGER,
     "name" TEXT,
     "date" BIGINT,
@@ -296,7 +307,7 @@ CREATE TABLE perforce.graphindex (
 );
 
 -- perforce.graphperm - Graph depot permissions
-CREATE TABLE perforce.graphperm (
+CREATE TABLE IF NOT EXISTS perforce.graphperm (
     "name" TEXT,
     "repo" TEXT,
     "ref" TEXT,
@@ -307,7 +318,7 @@ CREATE TABLE perforce.graphperm (
 );
 
 -- perforce.group - Group specifications
-CREATE TABLE perforce.group (
+CREATE TABLE IF NOT EXISTS perforce.group (
     "user" TEXT,
     "group" TEXT,
     "type" TEXT,
@@ -323,7 +334,7 @@ CREATE TABLE perforce.group (
 );
 
 -- perforce.groupx - Per-group data to support group membership controlled by AD/LDAP group membership
-CREATE TABLE perforce.groupx (
+CREATE TABLE IF NOT EXISTS perforce.groupx (
     "group" TEXT,
     "ldapConf" TEXT,
     "ldapSearchQuery" TEXT,
@@ -334,7 +345,7 @@ CREATE TABLE perforce.groupx (
 );
 
 -- perforce.have - Contains the 'have-list' for all clients
-CREATE TABLE perforce.have (
+CREATE TABLE IF NOT EXISTS perforce.have (
     "clientFile" TEXT,
     "depotFile" TEXT,
     "haveRev" INTEGER,
@@ -344,7 +355,7 @@ CREATE TABLE perforce.have (
 );
 
 -- perforce.have_pt - Placeholder for clients of types readonly, partitioned, and partitioned-jnl
-CREATE TABLE perforce.have_pt (
+CREATE TABLE IF NOT EXISTS perforce.have_pt (
     "clientFile" TEXT,
     "depotFile" TEXT,
     "haveRev" INTEGER,
@@ -354,7 +365,7 @@ CREATE TABLE perforce.have_pt (
 );
 
 -- perforce.have_rp - Contains the 'have-list' for clients of build-server replicas
-CREATE TABLE perforce.have_rp (
+CREATE TABLE IF NOT EXISTS perforce.have_rp (
     "clientFile" TEXT,
     "depotFile" TEXT,
     "haveRev" INTEGER,
@@ -364,7 +375,7 @@ CREATE TABLE perforce.have_rp (
 );
 
 -- perforce.haveg - Contains the 'have-list' for graph depot files that are not at the same revision as defined by the client's have reference
-CREATE TABLE perforce.haveg (
+CREATE TABLE IF NOT EXISTS perforce.haveg (
     "repo" TEXT,
     "clientFile" TEXT,
     "depotFile" TEXT,
@@ -378,7 +389,7 @@ CREATE TABLE perforce.haveg (
 );
 
 -- perforce.haveview - Stores mapping changes for clients mapping graph depot content
-CREATE TABLE perforce.haveview (
+CREATE TABLE IF NOT EXISTS perforce.haveview (
     "name" TEXT,
     "seq" INTEGER,
     "mapFlag" TEXT,
@@ -389,7 +400,7 @@ CREATE TABLE perforce.haveview (
 );
 
 -- perforce.integed - Permanent integration records
-CREATE TABLE perforce.integed (
+CREATE TABLE IF NOT EXISTS perforce.integed (
     "toFile" TEXT,
     "fromFile" TEXT,
     "startFromRev" INTEGER,
@@ -402,7 +413,7 @@ CREATE TABLE perforce.integed (
 );
 
 -- perforce.integedss - Stream specification integration history
-CREATE TABLE perforce.integedss (
+CREATE TABLE IF NOT EXISTS perforce.integedss (
     "toKey" TEXT,
     "attr" INTEGER,
     "fromKey" TEXT,
@@ -418,7 +429,7 @@ CREATE TABLE perforce.integedss (
 );
 
 -- perforce.integtx - Temporary integration records used by task streams
-CREATE TABLE perforce.integtx (
+CREATE TABLE IF NOT EXISTS perforce.integtx (
     "toFile" TEXT,
     "fromFile" TEXT,
     "startFromRev" INTEGER,
@@ -431,7 +442,7 @@ CREATE TABLE perforce.integtx (
 );
 
 -- perforce.ixtext - Indexing data for generic and job attributes
-CREATE TABLE perforce.ixtext (
+CREATE TABLE IF NOT EXISTS perforce.ixtext (
     "word" TEXT,
     "attr" INTEGER,
     "value" TEXT,
@@ -439,7 +450,7 @@ CREATE TABLE perforce.ixtext (
 );
 
 -- perforce.ixtexthx - Indexing data for head revision of all spec fields
-CREATE TABLE perforce.ixtexthx (
+CREATE TABLE IF NOT EXISTS perforce.ixtexthx (
     "type" TEXT,
     "word" TEXT,
     "attr" INTEGER,
@@ -448,7 +459,7 @@ CREATE TABLE perforce.ixtexthx (
 );
 
 -- perforce.jnlack - Tracks journal positions of all replicas
-CREATE TABLE perforce.jnlack (
+CREATE TABLE IF NOT EXISTS perforce.jnlack (
     "serverId" TEXT,
     "lastUpdate" BIGINT,
     "serverType" TEXT,
@@ -464,7 +475,7 @@ CREATE TABLE perforce.jnlack (
 );
 
 -- perforce.job - Job records
-CREATE TABLE perforce.job (
+CREATE TABLE IF NOT EXISTS perforce.job (
     "job" TEXT,
     "xuser" TEXT,
     "xdate" BIGINT,
@@ -474,7 +485,7 @@ CREATE TABLE perforce.job (
 );
 
 -- perforce.label - Revisions of files in labels
-CREATE TABLE perforce.label (
+CREATE TABLE IF NOT EXISTS perforce.label (
     "name" TEXT,
     "depotFile" TEXT,
     "haveRev" INTEGER,
@@ -482,7 +493,7 @@ CREATE TABLE perforce.label (
 );
 
 -- perforce.ldap - LDAP specifications
-CREATE TABLE perforce.ldap (
+CREATE TABLE IF NOT EXISTS perforce.ldap (
     "name" TEXT,
     "host" TEXT,
     "port" INTEGER,
@@ -506,7 +517,7 @@ CREATE TABLE perforce.ldap (
 );
 
 -- perforce.locks - Locked/Unlocked files
-CREATE TABLE perforce.locks (
+CREATE TABLE IF NOT EXISTS perforce.locks (
     "depotFile" TEXT,
     "client" TEXT,
     "user" TEXT,
@@ -517,7 +528,7 @@ CREATE TABLE perforce.locks (
 );
 
 -- perforce.locksg - Lock records for clients of type graph
-CREATE TABLE perforce.locksg (
+CREATE TABLE IF NOT EXISTS perforce.locksg (
     "depotFile" TEXT,
     "client" TEXT,
     "user" TEXT,
@@ -528,7 +539,7 @@ CREATE TABLE perforce.locksg (
 );
 
 -- perforce.logger - Support for 'p4 logger' command. Logs any changes to changelists and jobs.
-CREATE TABLE perforce.logger (
+CREATE TABLE IF NOT EXISTS perforce.logger (
     "seq" INTEGER,
     "key" TEXT,
     "attr" TEXT,
@@ -536,7 +547,7 @@ CREATE TABLE perforce.logger (
 );
 
 -- perforce.message - System messages
-CREATE TABLE perforce.message (
+CREATE TABLE IF NOT EXISTS perforce.message (
     "language" TEXT,
     "id" INTEGER,
     "message" TEXT,
@@ -544,7 +555,7 @@ CREATE TABLE perforce.message (
 );
 
 -- perforce.monitor - P4 Server process information
-CREATE TABLE perforce.monitor (
+CREATE TABLE IF NOT EXISTS perforce.monitor (
     "id" INTEGER,
     "user" TEXT,
     "function" TEXT,
@@ -561,14 +572,14 @@ CREATE TABLE perforce.monitor (
 );
 
 -- perforce.nameval - A table to store key/value pairs
-CREATE TABLE perforce.nameval (
+CREATE TABLE IF NOT EXISTS perforce.nameval (
     "name" TEXT,
     "value" TEXT,
     PRIMARY KEY ("name")
 );
 
 -- perforce.object - Object storage for graph depots
-CREATE TABLE perforce.object (
+CREATE TABLE IF NOT EXISTS perforce.object (
     "sha" TEXT,
     "type" TEXT,
     "data" BYTEA,
@@ -577,7 +588,7 @@ CREATE TABLE perforce.object (
 );
 
 -- perforce.property - Properties
-CREATE TABLE perforce.property (
+CREATE TABLE IF NOT EXISTS perforce.property (
     "name" TEXT,
     "seq" INTEGER,
     "type" TEXT,
@@ -589,7 +600,7 @@ CREATE TABLE perforce.property (
 );
 
 -- perforce.protect - The protections table
-CREATE TABLE perforce.protect (
+CREATE TABLE IF NOT EXISTS perforce.protect (
     "seq" INTEGER,
     "isGroup" INTEGER,
     "user" TEXT,
@@ -603,7 +614,7 @@ CREATE TABLE perforce.protect (
 );
 
 -- perforce.pubkey - SSH Public keys
-CREATE TABLE perforce.pubkey (
+CREATE TABLE IF NOT EXISTS perforce.pubkey (
     "user" TEXT,
     "scope" TEXT,
     "key" TEXT,
@@ -613,7 +624,7 @@ CREATE TABLE perforce.pubkey (
 );
 
 -- perforce.ref - Reference content for graph depots
-CREATE TABLE perforce.ref (
+CREATE TABLE IF NOT EXISTS perforce.ref (
     "repo" TEXT,
     "type" TEXT,
     "name" TEXT,
@@ -623,7 +634,7 @@ CREATE TABLE perforce.ref (
 );
 
 -- perforce.refcntadjust - Graph depot reference count adjustments
-CREATE TABLE perforce.refcntadjust (
+CREATE TABLE IF NOT EXISTS perforce.refcntadjust (
     "walked" INTEGER,
     "sha" TEXT,
     "adjustment" INTEGER,
@@ -632,7 +643,7 @@ CREATE TABLE perforce.refcntadjust (
 );
 
 -- perforce.refhist - Reference history for graph depots
-CREATE TABLE perforce.refhist (
+CREATE TABLE IF NOT EXISTS perforce.refhist (
     "repo" TEXT,
     "type" TEXT,
     "name" TEXT,
@@ -645,7 +656,7 @@ CREATE TABLE perforce.refhist (
 );
 
 -- perforce.remote - Remote specifications
-CREATE TABLE perforce.remote (
+CREATE TABLE IF NOT EXISTS perforce.remote (
     "id" TEXT,
     "owner" TEXT,
     "options" INTEGER,
@@ -660,7 +671,7 @@ CREATE TABLE perforce.remote (
 );
 
 -- perforce.repo - Repository specifications
-CREATE TABLE perforce.repo (
+CREATE TABLE IF NOT EXISTS perforce.repo (
     "repo" TEXT,
     "owner" TEXT,
     "created" BIGINT,
@@ -680,7 +691,7 @@ CREATE TABLE perforce.repo (
 );
 
 -- perforce.resolve - Pending integration records
-CREATE TABLE perforce.resolve (
+CREATE TABLE IF NOT EXISTS perforce.resolve (
     "toFile" TEXT,
     "fromFile" TEXT,
     "startFromRev" INTEGER,
@@ -695,7 +706,7 @@ CREATE TABLE perforce.resolve (
 );
 
 -- perforce.resolveg - Resolve records for clients of type graph
-CREATE TABLE perforce.resolveg (
+CREATE TABLE IF NOT EXISTS perforce.resolveg (
     "toFile" TEXT,
     "fromFile" TEXT,
     "baseSHA" TEXT,
@@ -706,7 +717,7 @@ CREATE TABLE perforce.resolveg (
 );
 
 -- perforce.resolvex - Pending integration records for shelved files
-CREATE TABLE perforce.resolvex (
+CREATE TABLE IF NOT EXISTS perforce.resolvex (
     "toFile" TEXT,
     "fromFile" TEXT,
     "startFromRev" INTEGER,
@@ -721,7 +732,7 @@ CREATE TABLE perforce.resolvex (
 );
 
 -- perforce.rev - Revision records
-CREATE TABLE perforce.rev (
+CREATE TABLE IF NOT EXISTS perforce.rev (
     "depotFile" TEXT,
     "depotRev" INTEGER,
     "type" TEXT,
@@ -740,7 +751,7 @@ CREATE TABLE perforce.rev (
 );
 
 -- perforce.revbx - Revision records for archived files
-CREATE TABLE perforce.revbx (
+CREATE TABLE IF NOT EXISTS perforce.revbx (
     "depotFile" TEXT,
     "depotRev" INTEGER,
     "type" TEXT,
@@ -759,7 +770,7 @@ CREATE TABLE perforce.revbx (
 );
 
 -- perforce.revcx - Secondary index of perforce.rev
-CREATE TABLE perforce.revcx (
+CREATE TABLE IF NOT EXISTS perforce.revcx (
     "change" INTEGER,
     "depotFile" TEXT,
     "depotRev" INTEGER,
@@ -768,7 +779,7 @@ CREATE TABLE perforce.revcx (
 );
 
 -- perforce.revdx - Revision records for revisions deleted at the head revision
-CREATE TABLE perforce.revdx (
+CREATE TABLE IF NOT EXISTS perforce.revdx (
     "depotFile" TEXT,
     "depotRev" INTEGER,
     "type" TEXT,
@@ -787,7 +798,7 @@ CREATE TABLE perforce.revdx (
 );
 
 -- perforce.revfs - Client filesystem file sizes
-CREATE TABLE perforce.revfs (
+CREATE TABLE IF NOT EXISTS perforce.revfs (
     "depotFile" TEXT,
     "rev" INTEGER,
     "clientType" TEXT,
@@ -796,7 +807,7 @@ CREATE TABLE perforce.revfs (
 );
 
 -- perforce.revhx - Revision records for revisions NOT deleted at the head revision
-CREATE TABLE perforce.revhx (
+CREATE TABLE IF NOT EXISTS perforce.revhx (
     "depotFile" TEXT,
     "depotRev" INTEGER,
     "type" TEXT,
@@ -815,7 +826,7 @@ CREATE TABLE perforce.revhx (
 );
 
 -- perforce.review - User's review mappings
-CREATE TABLE perforce.review (
+CREATE TABLE IF NOT EXISTS perforce.review (
     "user" TEXT,
     "seq" INTEGER,
     "mapFlag" TEXT,
@@ -825,7 +836,7 @@ CREATE TABLE perforce.review (
 );
 
 -- perforce.revpx - Pending revision records
-CREATE TABLE perforce.revpx (
+CREATE TABLE IF NOT EXISTS perforce.revpx (
     "depotFile" TEXT,
     "depotRev" INTEGER,
     "type" TEXT,
@@ -844,7 +855,7 @@ CREATE TABLE perforce.revpx (
 );
 
 -- perforce.revsh - Revision records for shelved files
-CREATE TABLE perforce.revsh (
+CREATE TABLE IF NOT EXISTS perforce.revsh (
     "depotFile" TEXT,
     "depotRev" INTEGER,
     "type" TEXT,
@@ -863,7 +874,7 @@ CREATE TABLE perforce.revsh (
 );
 
 -- perforce.revstg - Temporary revision records for storage upgrade process
-CREATE TABLE perforce.revstg (
+CREATE TABLE IF NOT EXISTS perforce.revstg (
     "depotFile" TEXT,
     "depotRev" INTEGER,
     "type" TEXT,
@@ -882,7 +893,7 @@ CREATE TABLE perforce.revstg (
 );
 
 -- perforce.revsx - Revision records for spec depot files
-CREATE TABLE perforce.revsx (
+CREATE TABLE IF NOT EXISTS perforce.revsx (
     "depotFile" TEXT,
     "depotRev" INTEGER,
     "type" TEXT,
@@ -901,7 +912,7 @@ CREATE TABLE perforce.revsx (
 );
 
 -- perforce.revtr - Rev table for huge traits
-CREATE TABLE perforce.revtr (
+CREATE TABLE IF NOT EXISTS perforce.revtr (
     "depotFile" TEXT,
     "depotRev" INTEGER,
     "type" TEXT,
@@ -920,7 +931,7 @@ CREATE TABLE perforce.revtr (
 );
 
 -- perforce.revtx - Task stream revision records
-CREATE TABLE perforce.revtx (
+CREATE TABLE IF NOT EXISTS perforce.revtx (
     "depotFile" TEXT,
     "depotRev" INTEGER,
     "type" TEXT,
@@ -939,7 +950,7 @@ CREATE TABLE perforce.revtx (
 );
 
 -- perforce.revux - Revision records for unload depot files
-CREATE TABLE perforce.revux (
+CREATE TABLE IF NOT EXISTS perforce.revux (
     "depotFile" TEXT,
     "depotRev" INTEGER,
     "type" TEXT,
@@ -958,7 +969,7 @@ CREATE TABLE perforce.revux (
 );
 
 -- perforce.rmtview - View data for remote specifications
-CREATE TABLE perforce.rmtview (
+CREATE TABLE IF NOT EXISTS perforce.rmtview (
     "id" TEXT,
     "seq" INTEGER,
     "mapFlag" TEXT,
@@ -969,7 +980,7 @@ CREATE TABLE perforce.rmtview (
 );
 
 -- perforce.scanctl - ScanCtl
-CREATE TABLE perforce.scanctl (
+CREATE TABLE IF NOT EXISTS perforce.scanctl (
     "depotPath" TEXT,
     "state" TEXT,
     "seq" INTEGER,
@@ -990,7 +1001,7 @@ CREATE TABLE perforce.scanctl (
 );
 
 -- perforce.scandir - Scandir
-CREATE TABLE perforce.scandir (
+CREATE TABLE IF NOT EXISTS perforce.scandir (
     "lskey" TEXT,
     "seq" INTEGER,
     "file" TEXT,
@@ -998,7 +1009,7 @@ CREATE TABLE perforce.scandir (
 );
 
 -- perforce.sendq - Parallel file transmission work queue
-CREATE TABLE perforce.sendq (
+CREATE TABLE IF NOT EXISTS perforce.sendq (
     "taskid" INTEGER,
     "seq" INTEGER,
     "handle" TEXT,
@@ -1027,7 +1038,7 @@ CREATE TABLE perforce.sendq (
 );
 
 -- perforce.sendq_pt - Per Client transmission work queue
-CREATE TABLE perforce.sendq_pt (
+CREATE TABLE IF NOT EXISTS perforce.sendq_pt (
     "taskid" INTEGER,
     "seq" INTEGER,
     "handle" TEXT,
@@ -1056,7 +1067,7 @@ CREATE TABLE perforce.sendq_pt (
 );
 
 -- perforce.server - Server specifications
-CREATE TABLE perforce.server (
+CREATE TABLE IF NOT EXISTS perforce.server (
     "id" TEXT,
     "type" TEXT,
     "name" TEXT,
@@ -1072,7 +1083,7 @@ CREATE TABLE perforce.server (
 );
 
 -- perforce.stash - Stash data
-CREATE TABLE perforce.stash (
+CREATE TABLE IF NOT EXISTS perforce.stash (
     "client" TEXT,
     "stream" TEXT,
     "type" TEXT,
@@ -1082,7 +1093,7 @@ CREATE TABLE perforce.stash (
 );
 
 -- perforce.storage - Track references to archive files
-CREATE TABLE perforce.storage (
+CREATE TABLE IF NOT EXISTS perforce.storage (
     "file" TEXT,
     "rev" TEXT,
     "type" TEXT,
@@ -1096,7 +1107,7 @@ CREATE TABLE perforce.storage (
 );
 
 -- perforce.storageg - Track references to Graph Depot archive files (for future use)
-CREATE TABLE perforce.storageg (
+CREATE TABLE IF NOT EXISTS perforce.storageg (
     "repo" TEXT,
     "sha" TEXT,
     "type" TEXT,
@@ -1106,7 +1117,7 @@ CREATE TABLE perforce.storageg (
 );
 
 -- perforce.storagesh - Track references to shelved archive files
-CREATE TABLE perforce.storagesh (
+CREATE TABLE IF NOT EXISTS perforce.storagesh (
     "file" TEXT,
     "rev" TEXT,
     "type" TEXT,
@@ -1120,7 +1131,7 @@ CREATE TABLE perforce.storagesh (
 );
 
 -- perforce.storagesx - Digest and filesize based index for perforce.storagesh, for finding shelved files with identical content
-CREATE TABLE perforce.storagesx (
+CREATE TABLE IF NOT EXISTS perforce.storagesx (
     "digest" TEXT,
     "size" BIGINT,
     "file" TEXT,
@@ -1130,7 +1141,7 @@ CREATE TABLE perforce.storagesx (
 );
 
 -- perforce.stream - Stream specifications
-CREATE TABLE perforce.stream (
+CREATE TABLE IF NOT EXISTS perforce.stream (
     "stream" TEXT,
     "parent" TEXT,
     "title" TEXT,
@@ -1147,13 +1158,13 @@ CREATE TABLE perforce.stream (
 );
 
 -- perforce.streamq - Track streams for which the stream views should be regenerated
-CREATE TABLE perforce.streamq (
+CREATE TABLE IF NOT EXISTS perforce.streamq (
     "stream" TEXT,
     PRIMARY KEY ("stream")
 );
 
 -- perforce.streamrelation - Relationships between streams
-CREATE TABLE perforce.streamrelation (
+CREATE TABLE IF NOT EXISTS perforce.streamrelation (
     "independentStream" TEXT,
     "dependentStream" TEXT,
     "type" TEXT,
@@ -1162,7 +1173,7 @@ CREATE TABLE perforce.streamrelation (
 );
 
 -- perforce.streamview - Precomputed stream views
-CREATE TABLE perforce.streamview (
+CREATE TABLE IF NOT EXISTS perforce.streamview (
     "name" TEXT,
     "seq" INTEGER,
     "mapFlag" TEXT,
@@ -1173,7 +1184,7 @@ CREATE TABLE perforce.streamview (
 );
 
 -- perforce.streamviewx - Indexing for precomputed stream views
-CREATE TABLE perforce.streamviewx (
+CREATE TABLE IF NOT EXISTS perforce.streamviewx (
     "depotPath" TEXT,
     "viewPath" TEXT,
     "mapFlag" TEXT,
@@ -1187,7 +1198,7 @@ CREATE TABLE perforce.streamviewx (
 );
 
 -- perforce.submodule - Submodule configuration data
-CREATE TABLE perforce.submodule (
+CREATE TABLE IF NOT EXISTS perforce.submodule (
     "repo" TEXT,
     "path" TEXT,
     "subrepo" TEXT,
@@ -1195,7 +1206,7 @@ CREATE TABLE perforce.submodule (
 );
 
 -- perforce.svrview - View data for servers specifications
-CREATE TABLE perforce.svrview (
+CREATE TABLE IF NOT EXISTS perforce.svrview (
     "id" TEXT,
     "type" TEXT,
     "seq" INTEGER,
@@ -1205,7 +1216,7 @@ CREATE TABLE perforce.svrview (
 );
 
 -- perforce.template - Streams templates
-CREATE TABLE perforce.template (
+CREATE TABLE IF NOT EXISTS perforce.template (
     "name" TEXT,
     "change" INTEGER,
     "seq" INTEGER,
@@ -1219,7 +1230,7 @@ CREATE TABLE perforce.template (
 );
 
 -- perforce.templatesx - Shelved stream templates
-CREATE TABLE perforce.templatesx (
+CREATE TABLE IF NOT EXISTS perforce.templatesx (
     "shelf" INTEGER,
     "name" TEXT,
     "seq" INTEGER,
@@ -1237,7 +1248,7 @@ CREATE TABLE perforce.templatesx (
 );
 
 -- perforce.templatewx - Pending stream templates
-CREATE TABLE perforce.templatewx (
+CREATE TABLE IF NOT EXISTS perforce.templatewx (
     "client" TEXT,
     "name" TEXT,
     "seq" INTEGER,
@@ -1255,7 +1266,7 @@ CREATE TABLE perforce.templatewx (
 );
 
 -- perforce.ticket - Second factor authentication state on a per user/host basis
-CREATE TABLE perforce.ticket (
+CREATE TABLE IF NOT EXISTS perforce.ticket (
     "user" TEXT,
     "host" TEXT,
     "ticket" TEXT,
@@ -1266,7 +1277,7 @@ CREATE TABLE perforce.ticket (
 );
 
 -- perforce.ticket_rp - Second factor authentication state on a per user/host basis (replica)
-CREATE TABLE perforce.ticket_rp (
+CREATE TABLE IF NOT EXISTS perforce.ticket_rp (
     "user" TEXT,
     "host" TEXT,
     "ticket" TEXT,
@@ -1277,7 +1288,7 @@ CREATE TABLE perforce.ticket_rp (
 );
 
 -- perforce.topology - Topology information
-CREATE TABLE perforce.topology (
+CREATE TABLE IF NOT EXISTS perforce.topology (
     "address" TEXT,
     "destAddress" TEXT,
     "serverID" TEXT,
@@ -1295,7 +1306,7 @@ CREATE TABLE perforce.topology (
 );
 
 -- perforce.traits - Attributes associated with file revisions
-CREATE TABLE perforce.traits (
+CREATE TABLE IF NOT EXISTS perforce.traits (
     "traitLot" INTEGER,
     "name" TEXT,
     "type" TEXT,
@@ -1304,7 +1315,7 @@ CREATE TABLE perforce.traits (
 );
 
 -- perforce.trigger - Trigger specifications
-CREATE TABLE perforce.trigger (
+CREATE TABLE IF NOT EXISTS perforce.trigger (
     "seq" INTEGER,
     "name" TEXT,
     "mapFlag" TEXT,
@@ -1316,7 +1327,7 @@ CREATE TABLE perforce.trigger (
 );
 
 -- perforce.upgrades - Store server upgrade info
-CREATE TABLE perforce.upgrades (
+CREATE TABLE IF NOT EXISTS perforce.upgrades (
     "seq" INTEGER,
     "name" TEXT,
     "state" TEXT,
@@ -1327,7 +1338,7 @@ CREATE TABLE perforce.upgrades (
 );
 
 -- perforce.upgrades_rp - Store replica upgrade info
-CREATE TABLE perforce.upgrades_rp (
+CREATE TABLE IF NOT EXISTS perforce.upgrades_rp (
     "seq" INTEGER,
     "name" TEXT,
     "state" TEXT,
@@ -1338,7 +1349,7 @@ CREATE TABLE perforce.upgrades_rp (
 );
 
 -- perforce.user - User specifications
-CREATE TABLE perforce.user (
+CREATE TABLE IF NOT EXISTS perforce.user (
     "user" TEXT,
     "email" TEXT,
     "jobView" TEXT,
@@ -1358,7 +1369,7 @@ CREATE TABLE perforce.user (
 );
 
 -- perforce.user_rp - Used by replica server's to store login information
-CREATE TABLE perforce.user_rp (
+CREATE TABLE IF NOT EXISTS perforce.user_rp (
     "user" TEXT,
     "email" TEXT,
     "jobView" TEXT,
@@ -1378,7 +1389,7 @@ CREATE TABLE perforce.user_rp (
 );
 
 -- perforce.uxtext - Indexing data for P4 Code Review
-CREATE TABLE perforce.uxtext (
+CREATE TABLE IF NOT EXISTS perforce.uxtext (
     "word" TEXT,
     "attr" INTEGER,
     "value" TEXT,
@@ -1386,7 +1397,7 @@ CREATE TABLE perforce.uxtext (
 );
 
 -- perforce.view - View data for domain records
-CREATE TABLE perforce.view (
+CREATE TABLE IF NOT EXISTS perforce.view (
     "name" TEXT,
     "seq" INTEGER,
     "mapFlag" TEXT,
@@ -1397,7 +1408,7 @@ CREATE TABLE perforce.view (
 );
 
 -- perforce.view_rp - View data for clients of build-server replicas
-CREATE TABLE perforce.view_rp (
+CREATE TABLE IF NOT EXISTS perforce.view_rp (
     "name" TEXT,
     "seq" INTEGER,
     "mapFlag" TEXT,
@@ -1408,7 +1419,7 @@ CREATE TABLE perforce.view_rp (
 );
 
 -- perforce.working - Records for work in progress
-CREATE TABLE perforce.working (
+CREATE TABLE IF NOT EXISTS perforce.working (
     "clientFile" TEXT,
     "depotFile" TEXT,
     "client" TEXT,
@@ -1432,7 +1443,7 @@ CREATE TABLE perforce.working (
 );
 
 -- perforce.workingg - Working records for clients of type graph
-CREATE TABLE perforce.workingg (
+CREATE TABLE IF NOT EXISTS perforce.workingg (
     "clientFile" TEXT,
     "depotFile" TEXT,
     "client" TEXT,
@@ -1458,7 +1469,7 @@ CREATE TABLE perforce.workingg (
 );
 
 -- perforce.workingx - Records for shelved open files
-CREATE TABLE perforce.workingx (
+CREATE TABLE IF NOT EXISTS perforce.workingx (
     "clientFile" TEXT,
     "depotFile" TEXT,
     "client" TEXT,
@@ -1482,25 +1493,29 @@ CREATE TABLE perforce.workingx (
 );
 
 -- Specialized tables (proxy/replica/tiny)
-CREATE TABLE perforce.pdb_lbr (
+CREATE TABLE IF NOT EXISTS perforce.pdb_lbr (
     "file" TEXT,
     "rev" TEXT,
     PRIMARY KEY ("file", "rev")
 );
 
-CREATE TABLE perforce.rdb_lbr (
+CREATE TABLE IF NOT EXISTS perforce.rdb_lbr (
     "file" TEXT,
     "rev" TEXT,
     PRIMARY KEY ("file", "rev")
 );
 
-CREATE TABLE perforce.tiny_db (
+CREATE TABLE IF NOT EXISTS perforce.tiny_db (
     "key" TEXT,
     "value" BYTEA,
     PRIMARY KEY ("key")
 );
 ```
-### Notes
+
+### Summary
+3. **Number of tables being created**: 111 tables (including specialized ones like `pdb_lbr`, `rdb_lbr`, and `tiny_db`).
+
+4. **Duplicate table DDL statements**: None found. All table names are unique.### Notes
 - **Primary Keys**: Based on "Indexed on" fields from the documentation; composite where applicable.
 - **Secondary Indexes**: Added simple indexes for common secondary fields (e.g., `change` in `db.fix`).
 - **Data Types**: Mappings are conservative to preserve data integrity (e.g., TEXT for variable strings, BIGINT for timestamps/sizes).
